@@ -44,6 +44,11 @@ dependencies {
     //swagger 설정
     implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:3.0.0'
 
+    //JWT 설정
+    implementation 'io.jsonwebtoken:jjwt-api:0.12.3'
+    runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.12.3'
+    runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.12.3'
+
     //spring cloud AWS (S3 설정)
     implementation 'software.amazon.awssdk:s3:2.20.0'
     implementation 'software.amazon.awssdk:auth:2.20.0'
