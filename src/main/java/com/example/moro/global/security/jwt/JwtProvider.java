@@ -13,10 +13,13 @@ import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.util.Date;
 
+/**
+ * jwt 생성 및 유효성 검증을 담당하는 컴포넌트
+ */
 @Component
 public class JwtProvider {
 
-    // 설정파일(yml)에서 비밀키를 가져오거나 임시 문자열을 사용합니다.
+    // 설정파일(yml)의 암호화 키
     @Value("${jwt.secret:vmfhaltjskdbstjavyansjungskwodydrnwhskqbzl}")
     private String salt;
 
@@ -30,7 +33,13 @@ public class JwtProvider {
         secretKey = Keys.hmacShaKeyFor(salt.getBytes(StandardCharsets.UTF_8));
     }
 
-    // 1. 토큰 생성
+    /**
+     * 사용자 정보를 바탕으로 JWT 액세스 토큰 생성
+     * @param email 사용자 식별자(Subject)
+     * @param role 사용자 권한
+     * @return 생성된 JWT 문자열
+     */
+
     public String createToken(String email, String role) {
         Map<String, Object> claims = new HashMap<>();
         claims.put(Claims.SUBJECT, email);
@@ -45,13 +54,22 @@ public class JwtProvider {
                 .compact();
     }
 
-    // 2. 토큰에서 이메일(Subject) 추출
+    /**
+     * 토큰 본문(Claims)에서 사용자 이메일 추출
+     * @param token 검증할 JWT 토큰
+     * @return 사용자 이메일
+     */
+
     public String getEmail(String token) {
         return Jwts.parser().setSigningKey(secretKey).build()
                 .parseClaimsJws(token).getBody().getSubject();
     }
 
-    // 3. 토큰 유효성 및 만료일자 확인
+    /**
+     * 토큰의 유효성 및 만료 여부 확인
+     * @param token 검증할 JWT 토큰
+     * @return 유효하면 true, 변조되었거나 만료되면 false
+     */
     public boolean validateToken(String token) {
         try {
             Jws<Claims> claims = Jwts.parser().setSigningKey(secretKey).build().parseClaimsJws(token);
