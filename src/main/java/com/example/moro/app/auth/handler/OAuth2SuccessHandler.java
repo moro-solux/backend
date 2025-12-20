@@ -2,6 +2,8 @@ package com.example.moro.app.auth.handler;
 
 import com.example.moro.app.auth.dto.LoginResponse;
 import com.example.moro.app.auth.service.AuthService;
+import com.example.moro.global.common.ApiResponseTemplate;
+import com.example.moro.global.common.SuccessCode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -18,6 +20,7 @@ import java.util.Map;
  * OAuth2 로그인 성공 시 실행되는 핸들러
  * 구글로부터 받은 사용자 정보를 우리 서비스의 회원 시스템과 연결하고 JWT를 발급함
  */
+
 @Component
 @RequiredArgsConstructor
 public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
@@ -27,22 +30,24 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
-                                      Authentication authentication) throws IOException, ServletException {
+                                        Authentication authentication) throws IOException, ServletException {
 
         OAuth2User oauth2User = (OAuth2User) authentication.getPrincipal();
 
-        // [Step 1] 인증 객체에서 구글 사용자 정보를 꺼냄
+        // [Step 1] 구글 사용자 정보 추출
         Map<String, Object> attributes = oauth2User.getAttributes();
         String email = (String) attributes.get("email");
         String name = (String) attributes.get("name");
 
-        // [Step 2] 구글에서 제공하는 속성값(Attributes) 추출
+        // [Step 2] 로그인 처리 및 데이터 생성
         LoginResponse loginResponse = authService.login(email, name);
 
-        // [Step 3] 추출한 정보를 AuthService에 넘겨 회원가입/로그인 및 JWT 발급 처리
+        // [Step 3] 컨벤션 적용
+        var apiResponse = ApiResponseTemplate.success(SuccessCode.RESOURCE_RETRIEVED, loginResponse);
+
+        // [Step 4] 공통 규격으로 설정된 JSON 응답 내보내기
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
-        // [Step 4] 성공 결과(토큰 포함)를 클라이언트에게 JSON 형태로 응답
-        response.getWriter().write(objectMapper.writeValueAsString(loginResponse));
+        response.getWriter().write(objectMapper.writeValueAsString(apiResponse));
     }
 }

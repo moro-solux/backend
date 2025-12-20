@@ -3,6 +3,8 @@ package com.example.moro.app.auth.controller;
 import com.example.moro.app.auth.dto.LoginRequest;
 import com.example.moro.app.auth.dto.LoginResponse;
 import com.example.moro.app.auth.service.AuthService;
+import com.example.moro.global.common.ApiResponseTemplate;
+import com.example.moro.global.common.SuccessCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -27,9 +29,9 @@ public class AuthController {
      */
 
     @PostMapping("/login")
-    public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest request) {
+    public ResponseEntity<ApiResponseTemplate<LoginResponse>> login(@RequestBody LoginRequest request) {
         //비즈니스 로직 (회원 확인 및 토큰 생성)은 AuthService에 위임함.
         LoginResponse response = authService.login(request.getEmail(), request.getName());
-        return ResponseEntity.ok(response);
+        return ApiResponseTemplate.success(SuccessCode.RESOURCE_RETRIEVED, response);
     }
 }
