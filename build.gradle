@@ -44,6 +44,10 @@ dependencies {
     //swagger 설정
     implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:3.0.0'
 
+    //spring cloud AWS (S3 설정)
+    implementation 'software.amazon.awssdk:s3:2.20.0'
+    implementation 'software.amazon.awssdk:auth:2.20.0'
+
 }
 
 tasks.named('test') {

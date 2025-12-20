@@ -19,3 +19,12 @@ spring:
         dialect: org.hibernate.dialect.MySQLDialect
         format_sql: false
     show-sql: false
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
+app:
+  s3:
+    bucket: moro-s3-bucket
+    region: ap-northeast-2
+
