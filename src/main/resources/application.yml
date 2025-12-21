@@ -46,4 +46,4 @@ app:
     region: ap-northeast-2
 
 jwt:
-  secret: ${JWT_SECRET:vmfhaltjskdbstjavyansjungskwodydrnwhskqbzl}
+  secret: ${JWT_SECRET}
