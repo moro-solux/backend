@@ -39,4 +39,25 @@ public class MemberService {
                         );
                 });
     }
+
+    /**
+     * 이메일로 회원 찾기
+     * @param email 회원 이메일
+     * @return 회원 엔티티
+     */
+    public Member findByEmail(String email) {
+        return memberRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("회원을 찾을 수 없습니다."));
+    }
+
+    /**
+     * 회원 탈퇴 처리
+     * @param memberId 탈퇴할 회원 ID
+     */
+    @Transactional
+    public void deleteMember(Long memberId) {
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new RuntimeException("회원을 찾을 수 없습니다."));
+        memberRepository.delete(member);
+    }
 }
