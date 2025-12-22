@@ -1,4 +1,4 @@
-package com.example.moro.app.mission;
+package com.example.moro.app.mission.entity;
 
 
 import jakarta.persistence.*;
