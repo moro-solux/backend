@@ -37,10 +37,9 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         // [Step 1] 구글 사용자 정보 추출
         Map<String, Object> attributes = oauth2User.getAttributes();
         String email = (String) attributes.get("email");
-        String name = (String) attributes.get("name");
 
         // [Step 2] 로그인 처리 및 데이터 생성
-        LoginResponse loginResponse = authService.login(email, name);
+        LoginResponse loginResponse = authService.handleOAuthLogin(email);
 
         // [Step 3] 컨벤션 적용
         var apiResponse = ApiResponseTemplate.success(SuccessCode.RESOURCE_RETRIEVED, loginResponse);

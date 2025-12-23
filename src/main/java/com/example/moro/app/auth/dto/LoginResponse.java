@@ -13,4 +13,7 @@ import lombok.Getter;
 public class LoginResponse {
     private MemberResponse member; //로그인한 사용자의 정보
     private String token; //jwt 토큰
+    private boolean needsNameSetup; // 이름 설정이 필요한지 여부
+    private String tempEmail; // 임시 이메일 (이름 설정 시 사용)
 }
+

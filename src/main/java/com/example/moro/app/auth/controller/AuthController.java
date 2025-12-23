@@ -1,5 +1,6 @@
 package com.example.moro.app.auth.controller;
 
+import com.example.moro.app.auth.dto.LoginResponse;
 import com.example.moro.app.auth.service.AuthService;
 import com.example.moro.app.member.entity.Member;
 import com.example.moro.app.member.service.MemberService;
@@ -45,6 +46,19 @@ public class AuthController {
     public ResponseEntity<ApiResponseTemplate<String>> logout() {
         // 클라이언트에서 토큰을 삭제하는 것을 권장
         return ApiResponseTemplate.success(SuccessCode.OPERATION_SUCCESSFUL, "로그아웃되었습니다.");
+    }
+
+    @Operation(
+            summary = "회원가입 완료",
+            description = "OAuth2 로그인 후 이름 설정을 완료하고 최종 회원가입을 처리합니다."
+    )
+    @PostMapping("/complete-registration")
+    public ResponseEntity<ApiResponseTemplate<LoginResponse>> completeRegistration(
+            @RequestParam String email,
+            @RequestParam String userName) {
+
+        LoginResponse response = authService.completeRegistration(email, userName);
+        return ApiResponseTemplate.success(SuccessCode.RESOURCE_CREATED, response);
     }
 
     @Operation(
