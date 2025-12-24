@@ -1,5 +1,6 @@
 package com.example.moro.app.follow;
 
+import com.example.moro.app.follow.dto.FollowUserResponse;
 import com.example.moro.app.follow.entity.Follow;
 import com.example.moro.app.follow.entity.FollowStatus;
 import com.example.moro.app.member.entity.Member;
@@ -39,7 +40,7 @@ public class FollowService {
         return follow;
     }
 
-    public void removeFollow(Long myUserId, Long targetUserId) {
+    public void removeByFollower(Long myUserId, Long targetUserId) {
         Follow follow = followRepository.findByFollowerIdAndFollowingId(myUserId, targetUserId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.RESOURCE_NOT_FOUND, "팔로우 관계가 존재하지 않습니다."));
 
@@ -48,10 +49,6 @@ public class FollowService {
         }
             followRepository.delete(follow);
     }
-
-
-
-
 
 
 }
