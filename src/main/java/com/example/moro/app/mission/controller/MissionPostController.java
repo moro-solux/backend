@@ -24,7 +24,6 @@ public class MissionPostController {
             @RequestPart("data") MissionPostRequest request
     ) {
         Long savedId = missionPostService.saveMissionPost(image, request);
-        //return ResponseEntity.ok(savedId);
         return ApiResponseTemplate.success(SuccessCode.RESOURCE_RETRIEVED, savedId);
     }
 }
