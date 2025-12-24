@@ -36,7 +36,13 @@ public class MemberController {
 
     }
 
+    @GetMapping("/me/follow-requests")
+    public ResponseEntity<?> getFollowRequestList() {
+        Member me = getCurrentMember();
+        Long userId = me.getId();
+        return ApiResponseTemplate.success(SuccessCode.RESOURCE_RETRIEVED, followService.getRequestList(userId));
 
+    }
 
 
     private Member getCurrentMember() {

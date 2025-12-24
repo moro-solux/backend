@@ -111,6 +111,15 @@ public class FollowService {
                 .collect(Collectors.toList());
     }
 
+    @Transactional(readOnly = true)
+    public List<FollowUserResponse> getRequestList(Long myUserId) {
+        return followRepository
+                .findByFollowingIdAndStatus(myUserId, FollowStatus.PENDING)
+                .stream()
+                .map(FollowUserResponse::fromFollower)
+                .collect(Collectors.toList());
+    }
+
 
 
 }
