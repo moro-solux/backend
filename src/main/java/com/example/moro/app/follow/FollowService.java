@@ -92,6 +92,24 @@ public class FollowService {
         followRepository.delete(follow);
     }
 
+    @Transactional(readOnly = true)
+    public List<FollowUserResponse>  getFollowerList(Long myUserId){
+        return followRepository
+                .findByFollowingIdAndStatus(myUserId, FollowStatus.ACCEPTED)
+                .stream()
+                .map(FollowUserResponse::fromFollower)
+                .collect(Collectors.toList());
+
+    }
+
+    @Transactional(readOnly = true)
+    public List<FollowUserResponse> getFollowingList(Long myUserId) {
+        return followRepository
+                .findByFollowerIdAndStatus(myUserId, FollowStatus.ACCEPTED)
+                .stream()
+                .map(FollowUserResponse::fromFollowing)
+                .collect(Collectors.toList());
+    }
 
 
 
