@@ -1,7 +1,9 @@
 package com.example.moro.app.mission.entity;
 
-
+import com.example.moro.app.member.entity.Member;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -9,6 +11,8 @@ import java.time.LocalDateTime;
 
 @Entity
 @Getter
+@Builder
+@AllArgsConstructor
 @NoArgsConstructor
 public class MissionPost {
 
@@ -22,9 +26,9 @@ public class MissionPost {
     private Mission mission;
 
     // User 테이블과 관계 설정 필요함
-    //@ManyToOne(fetch = FetchType.LAZY)
-    //@JoinColumn(name = "user_id")
-    //private Long userId;   // 사용자 아이디
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
+    private Member member;
 
     private LocalDateTime createdAt; // 생성일
     private String imageUrl;   // 이미지
