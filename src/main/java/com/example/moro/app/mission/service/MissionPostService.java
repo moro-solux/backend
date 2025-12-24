@@ -83,11 +83,11 @@ public class MissionPostService {
     @Transactional(readOnly = true)
     public List<MissionPostResponse> getFriendPosts(Long currentUserId){
         // 1. 현재 사용자 조회
-        Member me = memberRepository.findById(currentUserId)
-                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
+        //Member me = memberRepository.findById(currentUserId)
+        //        .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
 
         // 2. 내가 '팔로워' 이고 상태가 'ACCEPTED'인 follow 객체 조회
-        List<Follow> follows = followRepository.findByFollowerAndStatus(me, FollowStatus.ACCEPTED);
+        List<Follow> follows = followRepository.findByFollowerIdAndStatus(currentUserId, FollowStatus.ACCEPTED);
 
         // [추가] 친구 id 리스트 비었을 경우 빈 리스트 반환
         if (follows.isEmpty()) {
