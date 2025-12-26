@@ -1,9 +1,8 @@
 package com.example.moro.app.member;
 
-import com.example.moro.app.follow.FollowService;
+import com.example.moro.app.follow.service.FollowService;
 import com.example.moro.app.member.dto.MemberSearchResponse;
 import com.example.moro.app.member.entity.Member;
-import com.example.moro.app.member.service.MemberService;
 import com.example.moro.global.common.ApiResponseTemplate;
 import com.example.moro.global.common.ErrorCode;
 import com.example.moro.global.common.SuccessCode;
@@ -15,7 +14,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 
 import org.springframework.security.core.Authentication;
@@ -31,17 +29,32 @@ public class MemberController {
     private final FollowService followService;
 
 
-    @GetMapping("/{userId}/followers")
-    public ResponseEntity<?> getFollowerList(@PathVariable Long userId) {
-
-        return ApiResponseTemplate.success(SuccessCode.RESOURCE_RETRIEVED, followService.getFollowerList(userId));
+    /*@GetMapping("/{userId}/followers")
+    public ResponseEntity<?> getFollowerList(
+            @PathVariable Long userId,
+            @RequestParam(defaultValue = "") String keyword,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size
+    ) {
+        Pageable pageable = PageRequest.of(page, size);
+        return ApiResponseTemplate.success(
+                SuccessCode.RESOURCE_RETRIEVED,
+                PageResponse.from(followService.getFollowers(userId, keyword, pageable))
+        );
     }
 
     @GetMapping("/{userId}/followings")
-    public ResponseEntity<?> getFollowingList(@PathVariable Long userId) {
-        return ApiResponseTemplate.success(SuccessCode.RESOURCE_RETRIEVED, followService.getFollowingList(userId));
-
-    }
+    public ResponseEntity<?> getFollowingList(
+            @PathVariable Long userId,
+            @RequestParam(defaultValue = "") String keyword,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size
+    ) {
+        Pageable pageable = PageRequest.of(page, size);
+        return ApiResponseTemplate.success(
+                SuccessCode.RESOURCE_RETRIEVED,
+                PageResponse.from(followService.getFollowings(userId, keyword, pageable)));
+    }*/
 
     @GetMapping("/me/follow-requests")
     public ResponseEntity<?> getFollowRequestList() {

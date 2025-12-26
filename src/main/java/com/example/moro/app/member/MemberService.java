@@ -1,15 +1,12 @@
-package com.example.moro.app.member.service;
+package com.example.moro.app.member;
 
 import com.example.moro.app.member.dto.MemberSearchResponse;
 import com.example.moro.app.member.entity.Member;
-import com.example.moro.app.member.repository.MemberRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 /**
  * 회원 관련 비즈니스 로직 처리하는 서비스
