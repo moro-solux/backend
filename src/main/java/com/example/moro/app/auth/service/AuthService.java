@@ -2,7 +2,7 @@ package com.example.moro.app.auth.service;
 
 import com.example.moro.app.auth.dto.LoginResponse;
 import com.example.moro.app.member.entity.Member;
-import com.example.moro.app.member.MemberService;
+import com.example.moro.app.member.service.MemberService;
 import com.example.moro.global.security.jwt.JwtProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

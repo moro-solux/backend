@@ -6,7 +6,7 @@ import com.example.moro.app.follow.dto.FollowUserResponse;
 import com.example.moro.app.follow.entity.Follow;
 import com.example.moro.app.follow.entity.FollowStatus;
 import com.example.moro.app.member.entity.Member;
-import com.example.moro.app.member.MemberRepository;
+import com.example.moro.app.member.repository.MemberRepository;
 import com.example.moro.global.common.ErrorCode;
 import com.example.moro.global.exception.BusinessException;
 import lombok.RequiredArgsConstructor;

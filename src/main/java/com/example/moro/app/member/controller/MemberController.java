@@ -1,8 +1,9 @@
-package com.example.moro.app.member;
+package com.example.moro.app.member.controller;
 
 import com.example.moro.app.follow.service.FollowService;
 import com.example.moro.app.member.dto.MemberSearchResponse;
 import com.example.moro.app.member.entity.Member;
+import com.example.moro.app.member.service.MemberService;
 import com.example.moro.global.common.ApiResponseTemplate;
 import com.example.moro.global.common.ErrorCode;
 import com.example.moro.global.common.SuccessCode;

@@ -1,7 +1,8 @@
-package com.example.moro.app.member;
+package com.example.moro.app.member.service;
 
 import com.example.moro.app.member.dto.MemberSearchResponse;
 import com.example.moro.app.member.entity.Member;
+import com.example.moro.app.member.repository.MemberRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Transactional;

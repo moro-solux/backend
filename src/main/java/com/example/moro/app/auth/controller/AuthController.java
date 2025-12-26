@@ -2,7 +2,7 @@ package com.example.moro.app.auth.controller;
 
 import com.example.moro.app.auth.service.AuthService;
 import com.example.moro.app.member.entity.Member;
-import com.example.moro.app.member.MemberService;
+import com.example.moro.app.member.service.MemberService;
 import com.example.moro.global.common.ApiResponseTemplate;
 import com.example.moro.global.common.SuccessCode;
 import io.swagger.v3.oas.annotations.Operation;

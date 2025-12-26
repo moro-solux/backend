@@ -1,4 +1,4 @@
-package com.example.moro.app.member;
+package com.example.moro.app.member.repository;
 
 import com.example.moro.app.member.entity.Member;
 import org.springframework.data.domain.Page;

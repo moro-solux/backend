@@ -4,7 +4,7 @@ import com.example.moro.app.follow.repository.FollowRepository;
 import com.example.moro.app.follow.entity.Follow;
 import com.example.moro.app.follow.entity.FollowStatus;
 import com.example.moro.app.member.entity.Member;
-import com.example.moro.app.member.MemberRepository;
+import com.example.moro.app.member.repository.MemberRepository;
 import com.example.moro.app.mission.dto.MissionPostRequest;
 import com.example.moro.app.mission.dto.MissionPostResponse;
 import com.example.moro.app.mission.entity.Mission;
