@@ -29,7 +29,7 @@ public class MemberController {
     private final FollowService followService;
 
 
-    /*@GetMapping("/{userId}/followers")
+    @GetMapping("/{userId}/followers")
     public ResponseEntity<?> getFollowerList(
             @PathVariable Long userId,
             @RequestParam(defaultValue = "") String keyword,
@@ -54,7 +54,7 @@ public class MemberController {
         return ApiResponseTemplate.success(
                 SuccessCode.RESOURCE_RETRIEVED,
                 PageResponse.from(followService.getFollowings(userId, keyword, pageable)));
-    }*/
+    }
 
     @GetMapping("/me/follow-requests")
     public ResponseEntity<?> getFollowRequestList() {

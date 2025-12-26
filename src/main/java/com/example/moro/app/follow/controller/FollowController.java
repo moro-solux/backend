@@ -5,7 +5,7 @@ import com.example.moro.app.follow.dto.FollowRequestDto;
 import com.example.moro.app.follow.dto.FollowResponseDto;
 import com.example.moro.app.follow.entity.Follow;
 import com.example.moro.app.member.entity.Member;
-import com.example.moro.app.member.service.MemberService;
+import com.example.moro.app.member.MemberService;
 import com.example.moro.global.common.ApiResponseTemplate;
 import com.example.moro.global.common.ErrorCode;
 import com.example.moro.global.common.SuccessCode;
