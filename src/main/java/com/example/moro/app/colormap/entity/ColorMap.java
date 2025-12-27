@@ -4,7 +4,7 @@ import jakarta.persistence.Entity;
 
 @Entity
 public class ColorMap {
-    //private Long id; // PostColor 테이블과 연결예정
+    private Long colorId;
     private String colorTheme;
     private String hexCode;
 }
