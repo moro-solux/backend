@@ -7,6 +7,8 @@ import com.example.moro.global.security.jwt.JwtProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 /**
  * 인증 관련 핵심 비즈니스 로직을 담당하는 서비스
  * 로그인 처리 및 jwt 토큰 발급을 주관함
@@ -37,6 +39,55 @@ public class AuthService {
         return LoginResponse.builder()
                 .member(com.example.moro.app.member.dto.MemberResponse.from(member))
                 .token(token)
+                .build();
+    }
+
+    /**
+     * OAuth2 로그인 처리 (이름 없이 이메일만으로)
+     * 기존 회원이면 바로 로그인, 신규 회원이면 이름 설정 필요 표시
+     * @param email 구글에서 받은 이메일
+     * @return LoginResponse
+     */
+    public LoginResponse handleOAuthLogin(String email) {
+        // 이메일로 기존 회원 조회
+        Optional<Member> existingMember = memberService.findMemberByEmail(email);
+
+        if (existingMember.isPresent()) {
+            // 기존 회원: 바로 로그인 처리
+            Member member = existingMember.get();
+            String token = jwtProvider.createToken(member.getEmail(), member.getRole().name());
+
+            return LoginResponse.builder()
+                    .member(com.example.moro.app.member.dto.MemberResponse.from(member))
+                    .token(token)
+                    .needsNameSetup(false)
+                    .build();
+        } else {
+            // 신규 회원: 이름 설정 필요
+            return LoginResponse.builder()
+                    .needsNameSetup(true)
+                    .tempEmail(email)
+                    .build();
+        }
+    }
+
+    /**
+     * 회원가입 완료 처리 (이름 설정 후 최종 회원가입)
+     * @param email 사용자의 이메일
+     * @param userName 사용자가 설정한 이름
+     * @return LoginResponse
+     */
+    public LoginResponse completeRegistration(String email, String userName) {
+        // 이메일과 이름으로 최종 회원가입
+        Member member = memberService.findOrCreateMember(email, userName);
+
+        // JWT 토큰 발급
+        String token = jwtProvider.createToken(member.getEmail(), member.getRole().name());
+
+        return LoginResponse.builder()
+                .member(com.example.moro.app.member.dto.MemberResponse.from(member))
+                .token(token)
+                .needsNameSetup(false)
                 .build();
     }
 }

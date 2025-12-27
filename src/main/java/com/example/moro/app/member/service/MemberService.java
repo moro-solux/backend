@@ -9,6 +9,8 @@ import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 /**
  * 회원 관련 비즈니스 로직 처리하는 서비스
  */
@@ -41,6 +43,15 @@ public class MemberService {
                                 .build()
                         );
                 });
+    }
+
+    /**
+     * 이메일로 회원 찾기 (Optional 반환)
+     * @param email 회원 이메일
+     * @return 회원 엔티티 Optional
+     */
+    public Optional<Member> findMemberByEmail(String email) {
+        return memberRepository.findByEmail(email);
     }
 
     /**
