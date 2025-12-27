@@ -82,11 +82,8 @@ public class MissionPostService {
     // 미션 게시물 조회(친구)
     @Transactional(readOnly = true)
     public List<MissionPostResponse> getFriendPosts(Long currentUserId){
-        // 1. 현재 사용자 조회
-        //Member me = memberRepository.findById(currentUserId)
-        //        .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
 
-        // 2. 내가 '팔로워' 이고 상태가 'ACCEPTED'인 follow 객체 조회
+        // 1. 내가 '팔로워' 이고 상태가 'ACCEPTED'인 follow 객체 조회
         List<Follow> follows = followRepository.findByFollowerIdAndStatus(currentUserId, FollowStatus.ACCEPTED);
 
         // [추가] 친구 id 리스트 비었을 경우 빈 리스트 반환
@@ -94,7 +91,7 @@ public class MissionPostService {
             return List.of();
         }
 
-        // 3. Follow 객체에서 내가 팔로잉하는 상대방만 추출
+        // 2. Follow 객체에서 내가 팔로잉하는 상대방만 추출
         List<Long> friendIds = follows.stream()
                 .map(follow -> follow.getFollowing().getId())
                 .toList();
@@ -104,7 +101,7 @@ public class MissionPostService {
             return List.of();
         }
 
-        // 4. 친구들이 작성한 게시글 조회
+        // 3. 친구들이 작성한 게시글 조회
         return missionPostRepository.findByMember_IdInOrderByCreatedAtDesc(friendIds)
                 .stream()
                 .map(MissionPostResponse::from)
