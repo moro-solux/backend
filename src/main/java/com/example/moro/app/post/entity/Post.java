@@ -1,10 +1,9 @@
-package com.example.moro.app.post.domain;
+package com.example.moro.app.post.entity;
 
 import com.example.moro.app.member.entity.Member;
 import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
-import org.apache.catalina.User;
 
 import java.time.LocalDateTime;
 

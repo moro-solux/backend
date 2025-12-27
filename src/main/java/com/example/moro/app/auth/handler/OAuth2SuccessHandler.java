@@ -50,3 +50,4 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         response.getWriter().write(objectMapper.writeValueAsString(apiResponse));
     }
 }
+

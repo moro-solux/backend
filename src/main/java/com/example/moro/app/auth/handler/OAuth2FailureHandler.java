@@ -38,3 +38,4 @@ public class OAuth2FailureHandler extends SimpleUrlAuthenticationFailureHandler 
         response.getWriter().write(objectMapper.writeValueAsString(apiResponse));
     }
 }
+
