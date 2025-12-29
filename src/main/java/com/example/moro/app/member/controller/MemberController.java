@@ -2,6 +2,7 @@ package com.example.moro.app.member.controller;
 
 import com.example.moro.app.follow.service.FollowService;
 import com.example.moro.app.member.dto.MemberSearchResponse;
+import com.example.moro.app.member.dto.ProfileResponse;
 import com.example.moro.app.member.entity.Member;
 import com.example.moro.app.member.service.MemberService;
 import com.example.moro.global.common.ApiResponseTemplate;
@@ -73,6 +74,18 @@ public class MemberController {
         Pageable pageable = PageRequest.of(page, size, Sort.by("userName").ascending());
         Page<MemberSearchResponse> response = memberService.search(keyword, pageable);
         return ApiResponseTemplate.success(SuccessCode.RESOURCE_RETRIEVED, PageResponse.from(response));
+    }
+
+    @GetMapping("/{userId}/profile")
+    public ResponseEntity<?> getUserProfile(@PathVariable Long userId){
+
+        Member currentUser = getCurrentMember();
+        Long currentUserId = currentUser.getId();
+
+        ProfileResponse response = memberService.getProfile(userId, currentUserId);
+
+        return ApiResponseTemplate.success(SuccessCode.RESOURCE_RETRIEVED, response);
+
     }
 
 
