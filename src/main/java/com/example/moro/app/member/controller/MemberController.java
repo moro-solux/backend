@@ -96,6 +96,7 @@ public class MemberController {
                 request.getUserColorId(),
                 request.getUserColorHex()
         );
+
         return ApiResponseTemplate.success(SuccessCode.RESOURCE_UPDATED, "프로필이 성공적으로 업데이트되었습니다.");
     }
 
@@ -113,7 +114,14 @@ public class MemberController {
         return ApiResponseTemplate.success(SuccessCode.RESOURCE_RETRIEVED, response);
     }
 
+    @PutMapping("/me/colors/main")
+    public ResponseEntity<?> updateRepresentativeColors(@RequestBody UpdateRepresentativeColorsRequest request) {
 
+        Member me = getCurrentMember();
+        memberService.updateRepresentativeColors(me.getId(), request.getColorIds());
+
+        return ApiResponseTemplate.success(SuccessCode.RESOURCE_UPDATED, "대표 색상이 성공적으로 변경되었습니다.");
+    }
 
 
     private Member getCurrentMember() {
