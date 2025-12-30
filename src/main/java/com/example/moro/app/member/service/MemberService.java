@@ -5,15 +5,14 @@ import com.example.moro.app.colormap.repository.ColorMapRepository;
 import com.example.moro.app.colormap.repository.UserColorMapRepository;
 import com.example.moro.app.follow.entity.FollowStatus;
 import com.example.moro.app.follow.repository.FollowRepository;
-import com.example.moro.app.member.dto.MemberSearchResponse;
-import com.example.moro.app.member.dto.ProfileResponse;
-import com.example.moro.app.member.dto.UpdateProfileRequest;
-import com.example.moro.app.member.dto.UserColor;
+import com.example.moro.app.member.dto.*;
 import com.example.moro.app.member.entity.Member;
 import com.example.moro.app.colormap.entity.UserColorMap;
 import com.example.moro.app.member.repository.MemberRepository;
+import com.example.moro.app.post.entity.Post;
 import com.example.moro.app.post.repository.PostRepository;
 import com.example.moro.global.common.ErrorCode;
+import com.example.moro.global.common.dto.PageResponse;
 import com.example.moro.global.exception.BusinessException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -109,7 +108,7 @@ public class MemberService {
         boolean isCurrentUser = member.getId().equals(currentUserId);
         boolean isVisible = isCurrentUser || member.getIsPublic();
 
-        if (!isVisible) {
+        if(!isVisible) {
             isVisible = followRepository
                     .findByFollowerIdAndFollowingId(currentUserId, targetUserId)
                     .map(f -> f.getStatus() == FollowStatus.ACCEPTED)
@@ -123,7 +122,7 @@ public class MemberService {
         int followingCount = followRepository.countByFollowerId(member.getId());
 
         List<UserColor> colorCodes = Collections.emptyList();
-        if (isVisible) {
+        if(isVisible) {
             colorCodes = userColorMapRepository
                     .findByMemberAndIsRepresentativeTrue(member)
                     .stream()
@@ -151,8 +150,7 @@ public class MemberService {
     @Transactional
     public void updateProfile(Long memberId, String userName, Long userColorId, String userColorHex) {
         Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new BusinessException(ErrorCode.RESOURCE_NOT_FOUND,
-                        "해당 회원을 찾을 수 없습니다. userId: " + memberId));
+                .orElseThrow(() -> new BusinessException(ErrorCode.RESOURCE_NOT_FOUND, "해당 회원을 찾을 수 없습니다. userId: " + memberId));
 
         if (userName != null && !userName.isBlank()) {
             member.setUserName(userName);
@@ -161,8 +159,7 @@ public class MemberService {
                 && !userColorHex.isBlank()) {
 
             ColorMap colorMap = colorMapRepository.findById(userColorId)
-                    .orElseThrow(() -> new BusinessException(ErrorCode.BAD_REQUEST,
-                            "해당 색상 ID가 존재하지 않습니다(1~144). colorId: " + userColorId));
+                    .orElseThrow(() -> new BusinessException(ErrorCode.BAD_REQUEST, "해당 색상 ID가 존재하지 않습니다(1~144). colorId: " + userColorId));
 
             if (!colorMap.getHexCode().equalsIgnoreCase(userColorHex)) {
                 throw new BusinessException(ErrorCode.BAD_REQUEST,
@@ -171,8 +168,7 @@ public class MemberService {
 
             UserColorMap userColorMap = userColorMapRepository
                     .findByMemberIdAndColorMapColorId(memberId, userColorId)
-                    .orElseThrow(() -> new BusinessException(ErrorCode.BAD_REQUEST,
-                            "사용자가 해당 색상을 해금하지 않았습니다. colorId: " + userColorId));
+                    .orElseThrow(() -> new BusinessException(ErrorCode.BAD_REQUEST, "사용자가 해당 색상을 해금하지 않았습니다. colorId: " + userColorId));
 
             if (!Boolean.TRUE.equals(userColorMap.getUnlocked())) {
                 throw new BusinessException(ErrorCode.BAD_REQUEST,
@@ -184,5 +180,101 @@ public class MemberService {
         }
         memberRepository.save(member);
     }
+
+
+    public UserFeedListResponse getProfileFeed(Long targetUserId, ProfileFeedType type, Integer colorId, Pageable pageable) {
+        Member member = memberRepository.findById(targetUserId)
+                .orElseThrow(() -> new BusinessException( ErrorCode.RESOURCE_NOT_FOUND, "해당 회원이 존재하지 않습니다."));
+
+        Page<Post> postPage;
+
+        switch(type) {
+            case SINGLE_COLOR -> {
+                if (colorId == null) {
+                    throw new BusinessException(ErrorCode.BAD_REQUEST, "colorId는 필수입니다.");
+                }
+                postPage = postRepository.findByMemberAndMainColorIdOrderByCreatedAtDesc( member, colorId, pageable);
+            }
+
+            case DEFAULT -> {
+                if (member.getUserColorId() == null) {
+                    postPage = Page.empty(pageable);
+                    break;
+                }
+                Integer userColorId = member.getUserColorId().intValue();
+                postPage = postRepository.findByMemberAndMainColorIdOrderByCreatedAtDesc( member, userColorId, pageable);
+            }
+
+            case USER_COLORS -> {
+                List<Integer> representativeColorIds =
+                        userColorMapRepository
+                                .findByMemberAndIsRepresentativeTrue(member)
+                                .stream()
+                                .map(ucm -> ucm.getColorMap().getColorId().intValue())
+                                .toList();
+
+                if (representativeColorIds.isEmpty()) {
+                    postPage = Page.empty(pageable);
+                    break;
+                }
+
+                postPage = postRepository.findByMemberAndMainColorIdInOrderByCreatedAtDesc(member, representativeColorIds, pageable);
+            }
+
+            default -> throw new BusinessException(ErrorCode.BAD_REQUEST, "잘못된 조회 타입입니다. viewType은 DEAFULT / SINGLE_COLOR / USER_COLORS 중 하나여야 합니다.");
+        }
+
+        PageResponse<UserFeedResponse> pageResponse = PageResponse.from(postPage.map(this::toResponse));
+
+
+        return UserFeedListResponse.builder()
+                .viewType(type)
+                .page(pageResponse)
+                .build();
+    }
+
+    private UserFeedResponse toResponse(Post post) {
+        return UserFeedResponse.builder()
+                .postId(post.getId())
+                .imageUrl(post.getImageUrl())
+                .build();
+    }
+
+    @Transactional
+    public void updateRepresentativeColors(Long memberId, List<Long> colorIds) {
+
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new BusinessException(
+                        ErrorCode.RESOURCE_NOT_FOUND, "회원이 존재하지 않습니다."
+                ));
+
+        userColorMapRepository.clearRepresentativeByMember(member);
+
+        if(colorIds == null || colorIds.isEmpty()) {
+            return;
+        }
+
+        if(colorIds.size() > 6) {
+            throw new BusinessException(ErrorCode.BAD_REQUEST, "대표 색상은 최대 6개까지 선택할 수 있습니다.");
+        }
+
+        boolean invalidRange = colorIds.stream().anyMatch(id -> id < 1 || id > 144);
+        if(invalidRange) {
+            throw new BusinessException(ErrorCode.BAD_REQUEST, "colorId는 1~144 범위 내의 값이어야 합니다.");
+        }
+
+
+        List<UserColorMap> maps = userColorMapRepository.findByMemberAndUnlockedIsTrueAndColorMap_ColorIdIn(member, colorIds);
+        if(maps.size() != colorIds.size()) {
+            throw new BusinessException( ErrorCode.BAD_REQUEST, "해금되지 않았거나 존재하지 않는 색상이 포함되어 있습니다.");
+        }
+
+        for(UserColorMap map : maps){
+            map.setIsRepresentative(true);
+        }
+
+    }
+
+
 }
 
