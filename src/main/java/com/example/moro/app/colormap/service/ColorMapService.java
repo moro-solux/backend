@@ -6,6 +6,7 @@ import com.example.moro.app.colormap.repository.UserColorMapRepository;
 import com.example.moro.app.member.entity.Member;
 import com.example.moro.app.member.repository.MemberRepository;
 import com.example.moro.app.post.entity.Post;
+import com.example.moro.app.post.entity.PostColor;
 import com.example.moro.app.post.repository.PostColorRepository;
 import com.example.moro.app.post.repository.PostRepository;
 import com.example.moro.global.common.ErrorCode;
@@ -127,23 +128,28 @@ public class ColorMapService {
     /*
     게시물의 대표색 변경
     */
-    /*@Transactional
-    public UpdateMainColorResponse updatePostMainColor(Long memberId, Long postId, Long newColorId){
-        Member member = memberRepository.findById(memberId)
+    @Transactional
+    public UpdateMainColorResponse updatePostMainColor(String email, Long postId, Long newColorId){
+        Member member = memberRepository.findByEmail(email)
                 .orElseThrow(() -> new BusinessException(ErrorCode.RESOURCE_NOT_FOUND, "회원을 찾을 수 없습니다."));
+
 
         // 1. 게시물 존재 확인
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.RESOURCE_NOT_FOUND, "게시물을 찾을 수 없습니다."));
 
+        System.out.println("게시물 작성자 ID: " + post.getMember().getId());
+        System.out.println("현재 로그인 유저 ID: " + member.getId());
         // 본인 게시물인지 검증(추가)
-        if(!post.getMember().equals(memberId)){
+        if(!post.getMember().getId().equals(member.getId())){
             throw new BusinessException(ErrorCode.ACCESS_DENIED_EXCEPTION,"수정 권한이 없습니다.");
         }
 
         // 2. PostColor에서 추출했던 4개 확인
-        List<Long> candidates = postColorRepository.findColorIdsByPostId(postId);
-        if(!candidates.contains(newColorId)){
+        List<PostColor> candidates = postColorRepository.findAllByPostId(postId);
+        boolean isCandidate = candidates.stream()
+                .anyMatch(pc -> pc.getColormap().getColorId().equals(newColorId));
+        if(!isCandidate){
             throw new BusinessException(ErrorCode.BAD_REQUEST, "추출된 후보 색상이 아닙니다.");
         }
 
@@ -164,20 +170,25 @@ public class ColorMapService {
                 updatedUcm.getColorMap().getHexCode(),
                 updatedUcm.getUnlocked()
         );
-    }*/
+    }
 
     /*
     사용자 특정 컬러맵 통계 업데이트 <내부 로직>
      */
-    /*private void updateUserColorStatus(Member member, Long colorId, int delta){
+    private void updateUserColorStatus(Member member, Long colorId, int delta){
         UserColorMap ucm = userColorMapRepository.findByMemberAndColorMapColorId(member,colorId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.RESOURCE_NOT_FOUND, "유저 컬러맵을 찾을 수 없습니다."));
 
         // postCount 변경 + 0 이하 방지
         int currentCount = ucm.getPostCount() != null ?  ucm.getPostCount() : 0;
         ucm.setPostCount(Math.max(0, currentCount + delta));
+
         // 사진이 1개라도 등록되면 해금 처리
-        if(ucm.getPostCount() > 0) ucm.setUnlocked(true);
-    }*/
+        if(ucm.getPostCount() > 0){
+            ucm.setUnlocked(true);
+        } else{  // 0개면 해금 취소
+            ucm.setUnlocked(false);
+        }
+    }
 
 }

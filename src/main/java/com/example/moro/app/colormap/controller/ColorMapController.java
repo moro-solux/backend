@@ -61,14 +61,15 @@ public class ColorMapController {
         PostDetailResponse response = colorMapService.getPostDetail(email,postId);
         return ApiResponseTemplate.success(SuccessCode.RESOURCE_RETRIEVED, response);
     }
+
     // 3. 게시물 대표색 변경
-    /*@PatchMapping("/posts/{postId}/mainColor")
-    public ResponseEntity<ApiResponseTemplate<UpdateMainColorResponse>> updateMainColor(
-            @AuthenticationPrincipal Long userId,
+    @PatchMapping("/posts/{postId}/mainColor")
+    public ResponseEntity<ApiResponseTemplate<UpdateMainColorResponse>> updatePostMainColor(
+            @AuthenticationPrincipal String email,
             @PathVariable Long postId,
             @RequestBody UpdateMainColorRequest request
     ){
-        UpdateMainColorResponse response = colorMapService.updatePostMainColor(userId, postId, request.newColorId());
+        UpdateMainColorResponse response = colorMapService.updatePostMainColor(email, postId, request.newColorId());
         return ApiResponseTemplate.success(SuccessCode.RESOURCE_RETRIEVED, response);
-    }*/
+    }
 }
