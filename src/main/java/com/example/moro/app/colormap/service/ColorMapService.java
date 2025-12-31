@@ -23,7 +23,6 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
 public class ColorMapService {
     private final MemberRepository memberRepository; // Member 조회용
     private final UserColorMapRepository userColorMapRepository;
@@ -33,9 +32,13 @@ public class ColorMapService {
     /*
     테마별 컬러맵 현황 조회 -> 사용자의 컬러맵 내 해금 여부 + 사진 개수 반환
      */
-    public List<ThemeGroupResponse> getUserColorMaps(Long memberId) {   // 테마별 컬러 반환
-        Member member = memberRepository.findById(memberId)
+    @Transactional(readOnly = true)
+    public List<ThemeGroupResponse> getUserColorMaps(String email) {   // 테마별 컬러 반환
+        Member member = memberRepository.findByEmail(email)
                 .orElseThrow(() -> new BusinessException(ErrorCode.RESOURCE_NOT_FOUND, "회원을 찾을 수 없습니다."));
+
+        //  유저의 ID 가져오기
+        Long userId = member.getId();
 
         // 모든 색상 정보와 사용자의 해금 상태 한 번에 조회
         List<UserColorMap> userColors = userColorMapRepository.findAllByMemberWithColorMap(member);
@@ -59,10 +62,31 @@ public class ColorMapService {
                 .collect(Collectors.toList());
     }
 
+    @Transactional(readOnly = true)
+    public ThemeGroupResponse getUserColorMapsByTheme(String email, String themeName) {
+        // 1. 이메일로 유저 조회 및 ID 획득
+        Member member = memberRepository.findByEmail(email)
+                .orElseThrow(()-> new BusinessException(ErrorCode.RESOURCE_NOT_FOUND, "회원을 찾을 수 없습니다."));
+
+        System.out.println("현재 로그인한 유저의 DB ID: " + member.getId());
+        List<UserColorMap> userColors = userColorMapRepository.findAllByMemberAndTheme(member, themeName);
+
+        List<ColorDetailResponse> colorDetails = userColors.stream()
+                .map(ucm -> new ColorDetailResponse(
+                        ucm.getColorMap().getColorId(),
+                        ucm.getColorMap().getHexCode(),
+                        ucm.getPostCount(),
+                        ucm.getUnlocked(),
+                        ucm.getIsRepresentative()
+                )).toList();
+
+        return new ThemeGroupResponse(themeName, colorDetails);
+    }
+
     /*
     게시물의 대표색 변경
     */
-    @Transactional
+    /*@Transactional
     public UpdateMainColorResponse updatePostMainColor(Long memberId, Long postId, Long newColorId){
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.RESOURCE_NOT_FOUND, "회원을 찾을 수 없습니다."));
@@ -99,12 +123,12 @@ public class ColorMapService {
                 updatedUcm.getColorMap().getHexCode(),
                 updatedUcm.getUnlocked()
         );
-    }
+    }*/
 
     /*
     사용자 특정 컬러맵 통계 업데이트 <내부 로직>
      */
-    private void updateUserColorStatus(Member member, Long colorId, int delta){
+    /*private void updateUserColorStatus(Member member, Long colorId, int delta){
         UserColorMap ucm = userColorMapRepository.findByMemberAndColorMapColorId(member,colorId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.RESOURCE_NOT_FOUND, "유저 컬러맵을 찾을 수 없습니다."));
 
@@ -113,12 +137,12 @@ public class ColorMapService {
         ucm.setPostCount(Math.max(0, currentCount + delta));
         // 사진이 1개라도 등록되면 해금 처리
         if(ucm.getPostCount() > 0) ucm.setUnlocked(true);
-    }
+    }*/
 
     /*
     특정 색상의 게시물 조회
      */
-    public PageResponse<ColorPostResponse> getPostsByColor(Long memberId, Long colorId, Pageable pageable){
+    /*public PageResponse<ColorPostResponse> getPostsByColor(Long memberId, Long colorId, Pageable pageable){
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.RESOURCE_NOT_FOUND, "회원을 찾을 수 없습니다."));
 
@@ -126,6 +150,6 @@ public class ColorMapService {
                 postRepository.findByMemberAndMainColorIdOrderByCreatedAtDesc(member, colorId.intValue(), pageable)
                         .map(post -> new ColorPostResponse(post.getId(), post.getImageUrl()))
         );
-    }
+    }*/
 
 }

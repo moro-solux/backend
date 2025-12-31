@@ -22,17 +22,29 @@ import java.util.List;
 public class ColorMapController {
     private final ColorMapService colorMapService;
 
-    // 1. 컬러맵 전체 조회
+    // 1. 컬러맵  조회 (기본)
     @GetMapping("")
     public ResponseEntity<ApiResponseTemplate<List<ThemeGroupResponse>>> getMyColorMaps(
-            @AuthenticationPrincipal Long userId){
+            @AuthenticationPrincipal String email
+    ){
         // 현재 로그인한 사용자 ID
-        List<ThemeGroupResponse> response = colorMapService.getUserColorMaps(userId);
+        List<ThemeGroupResponse> response = colorMapService.getUserColorMaps(email);
+        return ApiResponseTemplate.success(SuccessCode.RESOURCE_RETRIEVED, response);
+    }
+
+    // 2. 테마별 컬러맵 조회
+    @GetMapping("/themes/{themeName}")
+    public ResponseEntity<ApiResponseTemplate<ThemeGroupResponse>> getMyColorMapsByTheme(
+            @AuthenticationPrincipal String email,
+            @PathVariable String themeName
+    ){
+        // 특정 테마 정보만 조회
+        ThemeGroupResponse response = colorMapService.getUserColorMapsByTheme(email, themeName);
         return ApiResponseTemplate.success(SuccessCode.RESOURCE_RETRIEVED, response);
     }
 
     // 2. 특정 색상의 사진들 조회
-    @GetMapping("/colors/{colorId}/posts")
+    /*@GetMapping("/colors/{colorId}/posts")
     public ResponseEntity<ApiResponseTemplate<PageResponse<ColorPostResponse>>> getPostsByColor(
             @AuthenticationPrincipal Long userId,
             @PathVariable Long colorId,
@@ -51,5 +63,5 @@ public class ColorMapController {
     ){
         UpdateMainColorResponse response = colorMapService.updatePostMainColor(userId, postId, request.newColorId());
         return ApiResponseTemplate.success(SuccessCode.RESOURCE_RETRIEVED, response);
-    }
+    }*/
 }

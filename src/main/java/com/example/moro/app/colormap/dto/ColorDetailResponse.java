@@ -1,6 +1,6 @@
 package com.example.moro.app.colormap.dto;
 
-// 개별 색상 정보
+// 전체 조회 시 개별 색상 정보
 public record ColorDetailResponse(
         Long colorId,
         String hexCode,

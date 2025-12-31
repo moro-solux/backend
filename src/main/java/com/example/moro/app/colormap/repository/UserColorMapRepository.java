@@ -1,5 +1,6 @@
 package com.example.moro.app.colormap.repository;
 
+import com.example.moro.app.colormap.dto.ColorDetailResponse;
 import com.example.moro.app.colormap.entity.ColorMap;
 import com.example.moro.app.colormap.entity.UserColorMap;
 import com.example.moro.app.colormap.entity.UserColorMapId;
@@ -38,5 +39,10 @@ public interface UserColorMapRepository extends JpaRepository<UserColorMap, User
     List<UserColorMap> findAllByMemberWithColorMap(@Param("member") Member member);
 
 
+    // 테마별 색 조회에 사용
+    @Query("SELECT ucm FROM UserColorMap ucm " +
+            "JOIN FETCH ucm.colorMap " +
+            "WHERE ucm.member = :member AND ucm.colorMap.colorTheme = :theme")
+    List<UserColorMap> findAllByMemberAndTheme(@Param("member") Member member, @Param("theme") String theme);
 
 }
