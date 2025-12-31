@@ -7,6 +7,7 @@ import com.example.moro.app.member.entity.Member;
 import com.example.moro.app.member.repository.MemberRepository;
 import com.example.moro.app.post.entity.Post;
 import com.example.moro.app.post.entity.PostColor;
+import com.example.moro.app.post.repository.LikeRepository;
 import com.example.moro.app.post.repository.PostColorRepository;
 import com.example.moro.app.post.repository.PostRepository;
 import com.example.moro.global.common.ErrorCode;
@@ -27,6 +28,7 @@ public class ColorMapService {
     private final UserColorMapRepository userColorMapRepository;
     private final PostRepository postRepository;
     private final PostColorRepository postColorRepository;
+    private final LikeRepository likeRepository;
 
     /*
     테마별 컬러맵 현황 조회 -> 사용자의 컬러맵 내 해금 여부 + 사진 개수 반환
@@ -133,13 +135,10 @@ public class ColorMapService {
         Member member = memberRepository.findByEmail(email)
                 .orElseThrow(() -> new BusinessException(ErrorCode.RESOURCE_NOT_FOUND, "회원을 찾을 수 없습니다."));
 
-
         // 1. 게시물 존재 확인
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.RESOURCE_NOT_FOUND, "게시물을 찾을 수 없습니다."));
 
-        System.out.println("게시물 작성자 ID: " + post.getMember().getId());
-        System.out.println("현재 로그인 유저 ID: " + member.getId());
         // 본인 게시물인지 검증(추가)
         if(!post.getMember().getId().equals(member.getId())){
             throw new BusinessException(ErrorCode.ACCESS_DENIED_EXCEPTION,"수정 권한이 없습니다.");
@@ -189,6 +188,28 @@ public class ColorMapService {
         } else{  // 0개면 해금 취소
             ucm.setUnlocked(false);
         }
+    }
+
+     /*
+    게시물 삭제
+     */
+    @Transactional
+    public void deletePost(String email, Long postId){
+        Member member = memberRepository.findByEmail(email)
+                .orElseThrow(() -> new BusinessException(ErrorCode.RESOURCE_NOT_FOUND, "회원을 찾을 수 없습니다."));
+
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.RESOURCE_NOT_FOUND, "게시물을 찾을 수 없습니다."));
+
+        if(!post.getMember().getId().equals(member.getId())){
+            throw new BusinessException(ErrorCode.ACCESS_DENIED_EXCEPTION,"삭제 권한이 없습니다.");
+        }
+
+        // 컬러맵 통계 업데이트
+        updateUserColorStatus(member, post.getMainColorId().longValue(), -1);
+
+        // 게시물 삭제
+        postRepository.delete(post);
     }
 
 }
