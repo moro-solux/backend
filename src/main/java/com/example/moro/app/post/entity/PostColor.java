@@ -12,7 +12,8 @@ import lombok.NoArgsConstructor;
 public class PostColor {
     @Id
     @Column(name = "pColorId")
-    private String id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer id;
 
     @ManyToOne
     @JoinColumn(name = "postId")
