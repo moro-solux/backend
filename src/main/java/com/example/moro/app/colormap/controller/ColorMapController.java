@@ -1,9 +1,6 @@
 package com.example.moro.app.colormap.controller;
 
-import com.example.moro.app.colormap.dto.ColorPostResponse;
-import com.example.moro.app.colormap.dto.ThemeGroupResponse;
-import com.example.moro.app.colormap.dto.UpdateMainColorRequest;
-import com.example.moro.app.colormap.dto.UpdateMainColorResponse;
+import com.example.moro.app.colormap.dto.*;
 import com.example.moro.app.colormap.service.ColorMapService;
 import com.example.moro.app.post.repository.PostRepository;
 import com.example.moro.global.common.ApiResponseTemplate;
@@ -54,6 +51,16 @@ public class ColorMapController {
         return ApiResponseTemplate.success(SuccessCode.RESOURCE_RETRIEVED, response);
     }
 
+    // 특정 색상의 게시물 자세히 보기
+    @GetMapping("/colors/{colorId}/posts/{postId}")
+    public ResponseEntity<ApiResponseTemplate<PostDetailResponse>> getPostDetail(
+            @AuthenticationPrincipal String email,
+            @PathVariable Integer colorId,
+            @PathVariable Long postId
+    ){
+        PostDetailResponse response = colorMapService.getPostDetail(email,postId);
+        return ApiResponseTemplate.success(SuccessCode.RESOURCE_RETRIEVED, response);
+    }
     // 3. 게시물 대표색 변경
     /*@PatchMapping("/posts/{postId}/mainColor")
     public ResponseEntity<ApiResponseTemplate<UpdateMainColorResponse>> updateMainColor(

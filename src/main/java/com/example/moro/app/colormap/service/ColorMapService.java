@@ -1,9 +1,6 @@
 package com.example.moro.app.colormap.service;
 
-import com.example.moro.app.colormap.dto.ColorDetailResponse;
-import com.example.moro.app.colormap.dto.ColorPostResponse;
-import com.example.moro.app.colormap.dto.ThemeGroupResponse;
-import com.example.moro.app.colormap.dto.UpdateMainColorResponse;
+import com.example.moro.app.colormap.dto.*;
 import com.example.moro.app.colormap.entity.UserColorMap;
 import com.example.moro.app.colormap.repository.UserColorMapRepository;
 import com.example.moro.app.member.entity.Member;
@@ -102,6 +99,30 @@ public class ColorMapService {
         return PageResponse.from(responsePage);
     }
 
+    @Transactional(readOnly = true)
+    public PostDetailResponse getPostDetail(String email, Long postId){
+        // 1. 게시물 조회
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.RESOURCE_NOT_FOUND, "게시물을 찾을 수 없습니다."));
+
+        // 2. 해당 게시물의 후보 색상 4개 조회
+        List<ColorCandidateResponse> candidates = postColorRepository.findAllByPostId(postId).stream()
+                .map(pc -> new ColorCandidateResponse(
+                        pc.getColormap().getColorId(),
+                        pc.getColormap().getHexCode()
+                ))
+                .collect(Collectors.toList());
+
+        // dto 생성
+        return new PostDetailResponse(
+                post.getMember().getUserName(),
+                //post.getMember().getProfile?
+                post.getId(),
+                post.getImageUrl(),
+                post.getMainColorId(),
+                candidates
+        );
+    }
 
     /*
     게시물의 대표색 변경
