@@ -44,18 +44,18 @@ public class ColorMapController {
     }
 
     // 2. 특정 색상의 사진들 조회
-    /*@GetMapping("/colors/{colorId}/posts")
+    @GetMapping("/colors/{colorId}/posts")
     public ResponseEntity<ApiResponseTemplate<PageResponse<ColorPostResponse>>> getPostsByColor(
-            @AuthenticationPrincipal Long userId,
-            @PathVariable Long colorId,
+            @AuthenticationPrincipal String email,
+            @PathVariable Integer colorId,
             Pageable pageable
     ){
-        PageResponse<ColorPostResponse> response = colorMapService.getPostsByColor(userId, colorId, pageable);
+        PageResponse<ColorPostResponse> response = colorMapService.getPostsByColor(email, colorId, pageable);
         return ApiResponseTemplate.success(SuccessCode.RESOURCE_RETRIEVED, response);
     }
 
     // 3. 게시물 대표색 변경
-    @PatchMapping("/posts/{postId}/mainColor")
+    /*@PatchMapping("/posts/{postId}/mainColor")
     public ResponseEntity<ApiResponseTemplate<UpdateMainColorResponse>> updateMainColor(
             @AuthenticationPrincipal Long userId,
             @PathVariable Long postId,

@@ -15,6 +15,7 @@ import com.example.moro.global.common.ErrorCode;
 import com.example.moro.global.common.dto.PageResponse;
 import com.example.moro.global.exception.BusinessException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.data.domain.Pageable;
@@ -84,6 +85,25 @@ public class ColorMapService {
     }
 
     /*
+   특정 색상의 게시물 조회
+    */
+    public PageResponse<ColorPostResponse> getPostsByColor(String email, Integer colorId, Pageable pageable){
+        Member member = memberRepository.findByEmail(email)
+                .orElseThrow(() -> new BusinessException(ErrorCode.RESOURCE_NOT_FOUND, "회원을 찾을 수 없습니다."));
+
+        // 해당 유저의 게시물 중 특정 색상 id 가진 게시물 페이징 조회
+        Page<Post> posts = postRepository.findByMemberAndMainColorIdOrderByCreatedAtDesc(member, colorId, pageable);
+
+        Page<ColorPostResponse> responsePage = posts.map(post -> new ColorPostResponse(
+                post.getId(),
+                post.getImageUrl()
+        ));
+
+        return PageResponse.from(responsePage);
+    }
+
+
+    /*
     게시물의 대표색 변경
     */
     /*@Transactional
@@ -137,19 +157,6 @@ public class ColorMapService {
         ucm.setPostCount(Math.max(0, currentCount + delta));
         // 사진이 1개라도 등록되면 해금 처리
         if(ucm.getPostCount() > 0) ucm.setUnlocked(true);
-    }*/
-
-    /*
-    특정 색상의 게시물 조회
-     */
-    /*public PageResponse<ColorPostResponse> getPostsByColor(Long memberId, Long colorId, Pageable pageable){
-        Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new BusinessException(ErrorCode.RESOURCE_NOT_FOUND, "회원을 찾을 수 없습니다."));
-
-        return PageResponse.from(
-                postRepository.findByMemberAndMainColorIdOrderByCreatedAtDesc(member, colorId.intValue(), pageable)
-                        .map(post -> new ColorPostResponse(post.getId(), post.getImageUrl()))
-        );
     }*/
 
 }
