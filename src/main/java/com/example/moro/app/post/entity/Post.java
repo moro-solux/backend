@@ -25,6 +25,7 @@ public class Post {
 
     //mainColorId
     @Column(nullable = false)
+    @Setter
     private Integer mainColorId;
 
     //ImageUrl
@@ -35,7 +36,9 @@ public class Post {
     private LocalDateTime createdAt;
 
     //위경도
+    @Setter
     private Double lat;
+    @Setter
     private Double lng;
 
     //공유 횟수를 저장할 필드가 필요하여 추가함.
@@ -45,6 +48,11 @@ public class Post {
     public void increaseShareCount() {
         this.shareCount++;
     }
+
+    // ===== 게시물 상태 (임시/최종) =====
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private PostStatus status = PostStatus.DRAFT;
 
     @Builder
     public Post(Member member, Integer mainColorId, String imageUrl, LocalDateTime createdAt, Double lat, Double lng) {
@@ -68,4 +76,22 @@ public class Post {
     // 3. 포스트 컬러 자동 삭제 (PostColor 엔티티 내부의 'post' 필드와 매핑)
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<PostColor> postColors = new ArrayList<>();
+
+    // ===== 상태 관련 메서드들 =====
+    public void publish() {
+        this.status = PostStatus.PUBLISHED;
+    }
+
+    public boolean isDraft() {
+        return this.status == PostStatus.DRAFT;
+    }
+
+    public boolean isPublished() {
+        return this.status == PostStatus.PUBLISHED;
+    }
+
+    public enum PostStatus {
+        DRAFT,      // 임시 상태 (미리보기)
+        PUBLISHED   // 최종 게시물
+    }
 }
