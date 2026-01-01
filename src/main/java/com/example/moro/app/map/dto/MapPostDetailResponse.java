@@ -7,7 +7,7 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 @Builder
-public class MapPostDetailResponseDto {
+public class MapPostDetailResponse {
     private Long postId;
 
     private String createdAt;
