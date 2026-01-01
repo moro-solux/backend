@@ -4,6 +4,7 @@ import com.example.moro.app.member.entity.Member;
 import com.example.moro.app.post.dto.CaptureRequest;
 import com.example.moro.app.post.dto.CaptureResponse;
 import com.example.moro.app.post.dto.LocationUpdateRequest;
+import com.example.moro.app.post.dto.ShareResponse;
 import com.example.moro.app.post.dto.MainColorRequest;
 import com.example.moro.app.post.dto.PostRequestDto;
 import com.example.moro.app.post.dto.PostResponseDto;
@@ -42,9 +43,9 @@ public class PostController {
 
     //게시물 공유
     @PostMapping("/{postId}/share")
-    public ResponseEntity<ApiResponseTemplate<Void>> sharePost(@PathVariable Long postId) {
-        postService.sharePost(postId);
-        return ApiResponseTemplate.success(SuccessCode.RESOURCE_UPDATED, null);
+    public ResponseEntity<ApiResponseTemplate<ShareResponse>> sharePost(@PathVariable Long postId) {
+        ShareResponse response = postService.sharePost(postId);
+        return ApiResponseTemplate.success(SuccessCode.RESOURCE_UPDATED, response);
     }
 
     // ===== 홈 피드 스타일 게시물 조회 =====
@@ -56,6 +57,13 @@ public class PostController {
 
         PageResponse<PostResponseDto> feed = postService.getHomeFeed(member.getId(), pageable);
         return ApiResponseTemplate.success(SuccessCode.RESOURCE_RETRIEVED, feed);
+    }
+
+    // 단일 게시물 조회
+    @GetMapping("/{postId}")
+    public ResponseEntity<ApiResponseTemplate<PostResponseDto>> getPost(@PathVariable Long postId) {
+        PostResponseDto post = postService.getPost(postId);
+        return ApiResponseTemplate.success(SuccessCode.RESOURCE_RETRIEVED, post);
     }
 
     // ===== 단계별 게시물 생성 플로우 =====

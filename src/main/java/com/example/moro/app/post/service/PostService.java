@@ -17,6 +17,7 @@ import com.example.moro.app.post.dto.CaptureRequest;
 import com.example.moro.app.post.dto.CaptureResponse;
 import com.example.moro.app.post.dto.LocationUpdateRequest;
 import com.example.moro.app.post.dto.MainColorRequest;
+import com.example.moro.app.post.dto.ShareResponse;
 import com.example.moro.app.post.entity.Post.PostStatus;
 import com.example.moro.global.common.dto.PageResponse;
 import jakarta.transaction.Transactional;
@@ -139,10 +140,15 @@ public class PostService {
 
 
     //4. 게시물 공유
-    public void sharePost(Long postId) {
+    public ShareResponse sharePost(Long postId) {
         Post post=postRepository.findById(postId)
                 .orElseThrow(()-> new IllegalArgumentException("게시물 없음"));
         post.increaseShareCount();
+        postRepository.save(post);
+
+        // 공유 URL 생성
+        String shareUrl = "http://localhost:8080/posts/" + postId;
+        return new ShareResponse(shareUrl);
     }
 
 
@@ -184,10 +190,14 @@ public class PostService {
 
         // 미리보기 데이터 준비
         List<PostResponseDto.ColorInfo> colorInfos = colorResults.stream()
-                .map(result -> new PostResponseDto.ColorInfo(
-                        result.getColorId(),
-                        "TEMP_HEX", // 실제로는 ColorMap에서 가져와야 함
-                        result.getRatio()))
+                .map(result -> {
+                    ColorMap colorMap = colorMapRepository.findById((long) result.getColorId())
+                            .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 컬러id:" + result.getColorId()));
+                    return new PostResponseDto.ColorInfo(
+                            result.getColorId(),
+                            colorMap.getHexCode(), // 실제 hexCode 사용
+                            result.getRatio());
+                })
                 .collect(Collectors.toList());
 
         return new CaptureResponse(savedDraft.getId(), colorInfos, mainColor.getColorId());
@@ -228,7 +238,7 @@ public class PostService {
 
         // 선택한 색상이 실제로 해당 게시물의 색상인지 검증
         boolean isValidColor = postColorRepository.findAllByPost(draft).stream()
-                .anyMatch(pc -> pc.getColormap().getColorId().equals(mainColorId));
+                .anyMatch(pc -> pc.getColormap().getColorId().equals(Long.valueOf(mainColorId)));
 
         if (!isValidColor) {
             throw new IllegalArgumentException("유효하지 않은 색상 선택입니다.");

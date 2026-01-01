@@ -2,6 +2,7 @@ package com.example.moro.global.config;
 
 import com.example.moro.app.auth.handler.OAuth2FailureHandler;
 import com.example.moro.app.auth.handler.OAuth2SuccessHandler;
+import com.example.moro.app.member.repository.MemberRepository;
 import com.example.moro.global.security.jwt.JwtAuthenticationFilter;
 import com.example.moro.global.security.jwt.JwtProvider;
 import lombok.RequiredArgsConstructor;
@@ -22,6 +23,7 @@ import java.util.Arrays;
 public class SecurityConfig {
 
     private final JwtProvider jwtProvider;
+    private final MemberRepository memberRepository;
     private final OAuth2SuccessHandler oAuth2SuccessHandler;
     private final OAuth2FailureHandler oAuth2FailureHandler;
 
@@ -36,7 +38,7 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
 
                 // JWT 필터 추가
-                .addFilterBefore(new JwtAuthenticationFilter(jwtProvider),
+                .addFilterBefore(new JwtAuthenticationFilter(jwtProvider, memberRepository),
                                org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter.class)
 
                 // OAuth2 로그인 설정

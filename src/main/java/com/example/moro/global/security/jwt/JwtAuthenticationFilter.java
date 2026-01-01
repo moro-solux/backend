@@ -1,5 +1,7 @@
 package com.example.moro.global.security.jwt;
 
+import com.example.moro.app.member.entity.Member;
+import com.example.moro.app.member.repository.MemberRepository;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -21,6 +23,7 @@ import java.util.Collections;
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtProvider jwtProvider;
+    private final MemberRepository memberRepository;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request,
@@ -34,10 +37,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         if (token != null && jwtProvider.validateToken(token)) {
             String email = jwtProvider.getEmail(token);
 
+            // 이메일로 Member 객체 조회
+            Member member = memberRepository.findByEmail(email).orElse(null);
+
             // 스프링 시큐리티 내부에서 사용할 인증 객체(Authentication) 생성
-            // 현재 프로젝트는 단순화를 위해 권한 목록(Authorities)은 빈 리스트로 설정
+            // Member 객체를 principal로 저장하여 @AuthenticationPrincipal Member member에서 사용 가능
             UsernamePasswordAuthenticationToken authentication =
-                    new UsernamePasswordAuthenticationToken(email, null, Collections.emptyList());
+                    new UsernamePasswordAuthenticationToken(member, null, Collections.emptyList());
 
             // [Step 3] 생성한 인증 객체를 SecurityContext에 저장
             // 이렇게 저장해두면 컨트롤러 등에서 @AuthenticationPrincipal로 정보를 꺼낼 수 있음
