@@ -5,9 +5,12 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter
+@Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Post {
 
@@ -49,4 +52,15 @@ public class Post {
         this.shareCount=0;
     }
 
+    // 1. 좋아요 자동 삭제 (Like 엔티티 내부의 'post' 필드와 매핑)
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Like> likes = new ArrayList<>();
+
+    // 2. 댓글 자동 삭제 (Comment 엔티티 내부의 'post' 필드와 매핑)
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Comment> comments = new ArrayList<>();
+
+    // 3. 포스트 컬러 자동 삭제 (PostColor 엔티티 내부의 'post' 필드와 매핑)
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<PostColor> postColors = new ArrayList<>();
 }

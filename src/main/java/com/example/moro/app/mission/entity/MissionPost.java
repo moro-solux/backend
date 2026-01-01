@@ -34,7 +34,7 @@ public class MissionPost {
     private String imageUrl;   // 이미지
     private String detail;   // 상세
 
-    private Double lat;   // 위도
+    private Double lat;   // 위도  // 안쓸듯
     private Double lng;   // 경도
 
 }
