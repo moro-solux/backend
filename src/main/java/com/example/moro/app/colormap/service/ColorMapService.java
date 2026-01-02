@@ -109,7 +109,8 @@ public class ColorMapService {
                 .orElseThrow(() -> new BusinessException(ErrorCode.RESOURCE_NOT_FOUND, "게시물을 찾을 수 없습니다."));
 
         // 2. 해당 게시물의 후보 색상 4개 조회
-        List<ColorCandidateResponse> candidates = postColorRepository.findAllByPostId(postId).stream()
+        List<ColorCandidateResponse> candidates = postColorRepository.findAllByPostId(postId)
+                .stream()
                 .map(pc -> new ColorCandidateResponse(
                         pc.getColormap().getColorId(),
                         pc.getColormap().getHexCode()

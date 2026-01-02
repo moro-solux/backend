@@ -1,7 +1,7 @@
 package com.example.moro.app.mission.controller;
 
-import com.example.moro.app.mission.dto.MissionPostRequest;
-import com.example.moro.app.mission.dto.MissionPostResponse;
+import com.example.moro.app.member.entity.Member;
+import com.example.moro.app.mission.dto.*;
 import com.example.moro.app.mission.service.MissionPostService;
 import com.example.moro.global.common.ApiResponseTemplate;
 import com.example.moro.global.common.SuccessCode;
@@ -21,6 +21,7 @@ public class MissionPostController {
 
     private final MissionPostService missionPostService;
 
+    // <미션 업로드>
     // POST 방식으로 사진과 데이터를 함께 받음
     @PostMapping(value = "/upload",consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ApiResponseTemplate<Long>> uploadMissionPost(
@@ -31,6 +32,7 @@ public class MissionPostController {
         return ApiResponseTemplate.success(SuccessCode.RESOURCE_RETRIEVED, savedId);
     }
 
+    // <미션 조회(자신)>
     @GetMapping("posts/me")
     public ResponseEntity<ApiResponseTemplate<List<MissionPostResponse>>> getMyPosts(
             @AuthenticationPrincipal Long userId // 현재 사용자
@@ -39,12 +41,14 @@ public class MissionPostController {
         return ApiResponseTemplate.success(SuccessCode.RESOURCE_RETRIEVED, response);
     }
 
+    // <미션 조회(전체)>
     @GetMapping("posts")
     public ResponseEntity<ApiResponseTemplate<List<MissionPostResponse>>> getAllPosts(){
         List<MissionPostResponse> response = missionPostService.getAllPosts();
         return ApiResponseTemplate.success(SuccessCode.RESOURCE_RETRIEVED, response);
     }
 
+    // <미션 조회(친구)>
     @GetMapping("posts/friends")
     public ResponseEntity<ApiResponseTemplate<List<MissionPostResponse>>> getMyFreinds(
             @AuthenticationPrincipal Long userId
@@ -55,6 +59,45 @@ public class MissionPostController {
             return ApiResponseTemplate.success(SuccessCode.RESOURCE_RETRIEVED, response);
         }
         return ApiResponseTemplate.success(SuccessCode.RESOURCE_RETRIEVED, response);
+    }
 
+    // <특정 미션 게시물 모든 댓글 조회>
+    @GetMapping("posts/{misPostId}/comments")
+    public ResponseEntity<ApiResponseTemplate<List<MisCommentResponse>>> getComment(
+            @PathVariable("misPostId") Long misPostId
+    ){
+        List<MisCommentResponse> response = missionPostService.getMisComments(misPostId);
+        return ApiResponseTemplate.success(SuccessCode.RESOURCE_RETRIEVED, response);
+    }
+
+    // < 댓글 작성 >
+    @PostMapping("posts/comments")
+    public ResponseEntity<ApiResponseTemplate<Long>> addComment(
+            @AuthenticationPrincipal Member member,
+            @RequestBody MisCommentRequest request
+    ){
+        Long misCommentId = missionPostService.createMisComments(member.getEmail(), request);
+        return ApiResponseTemplate.success(SuccessCode.RESOURCE_RETRIEVED, misCommentId);
+    }
+
+    // < 특정 댓글 수정 >
+    @PatchMapping("posts/comments/{misCommentId}/edit")
+    public ResponseEntity<ApiResponseTemplate<Void>> updateComment(
+            @AuthenticationPrincipal Member member,
+            @PathVariable("misCommentId") Long misCommentId,
+            @RequestBody MisCommentUpdateRequest request
+    ){
+        missionPostService.updateMisComments(member.getEmail(), misCommentId, request.newContent());
+        return ApiResponseTemplate.success(SuccessCode.RESOURCE_UPDATED, null);
+    }
+
+    // < 특정 댓글 삭제 >
+    @DeleteMapping("posts/comments/{misCommentId}/delete")
+    public ResponseEntity<ApiResponseTemplate<Void>> deleteComment(
+            @AuthenticationPrincipal Member member,
+            @PathVariable("misCommentId") Long misCommentId
+    ){
+        missionPostService.deleteMisComments(member.getEmail(), misCommentId);
+        return ApiResponseTemplate.success(SuccessCode.RESOURCE_UPDATED, null);
     }
 }
