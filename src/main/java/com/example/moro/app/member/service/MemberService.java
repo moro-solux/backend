@@ -100,8 +100,7 @@ public class MemberService {
 
     public ProfileResponse getProfile(Long targetUserId, Long currentUserId) {
         Member member = memberRepository.findById(targetUserId)
-                .orElseThrow(() -> new BusinessException(ErrorCode.RESOURCE_NOT_FOUND,
-                        "해당 회원을 찾을 수 없습니다. userId: " + targetUserId));
+                .orElseThrow(() -> new BusinessException(ErrorCode.RESOURCE_NOT_FOUND, "해당 회원을 찾을 수 없습니다. userId: " + targetUserId));
 
         String userColorHex = member.getUserColorHex();
 
@@ -155,8 +154,7 @@ public class MemberService {
         if (userName != null && !userName.isBlank()) {
             member.setUserName(userName);
         }
-        if (userColorId != null && userColorHex != null
-                && !userColorHex.isBlank()) {
+        if (userColorId != null && userColorHex != null && !userColorHex.isBlank()) {
 
             ColorMap colorMap = colorMapRepository.findById(userColorId)
                     .orElseThrow(() -> new BusinessException(ErrorCode.BAD_REQUEST, "해당 색상 ID가 존재하지 않습니다(1~144). colorId: " + userColorId));
@@ -166,13 +164,14 @@ public class MemberService {
                         "colorId와 colorHex가 일치하지 않습니다. colorId: " + userColorId + ", colorHex: " + userColorHex);
             }
 
-            UserColorMap userColorMap = userColorMapRepository
-                    .findByMemberIdAndColorMapColorId(memberId, userColorId)
-                    .orElseThrow(() -> new BusinessException(ErrorCode.BAD_REQUEST, "사용자가 해당 색상을 해금하지 않았습니다. colorId: " + userColorId));
+            Optional<UserColorMap> unlockedColor = userColorMapRepository
+                    .findByMemberAndUnlockedIsTrueAndColorMap_ColorIdIn(member, List.of(userColorId))
+                    .stream()
+                    .findFirst();
 
-            if (!Boolean.TRUE.equals(userColorMap.getUnlocked())) {
-                throw new BusinessException(ErrorCode.BAD_REQUEST,
-                        "사용자가 해당 색상을 아직 해금하지 않았습니다. colorId: " + userColorId);
+            if (unlockedColor.isEmpty()) {
+                throw new BusinessException(ErrorCode.ACCESS_DENIED_EXCEPTION,
+                        "사용자가 해당 색상을 해금하지 않았습니다. colorId: " + userColorId);
             }
 
             member.setUserColorId(userColorId);
