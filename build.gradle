@@ -53,6 +53,10 @@ dependencies {
     implementation 'software.amazon.awssdk:s3:2.20.0'
     implementation 'software.amazon.awssdk:auth:2.20.0'
 
+    //google maps api 설정
+    implementation 'com.google.maps:google-maps-services:2.2.0'
+
+
 }
 
 tasks.named('test') {
