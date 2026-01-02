@@ -1,22 +1,17 @@
 package com.example.moro.app.map.controller;
 
-
 import com.example.moro.app.map.dto.MapPostDetailResponse;
 import com.example.moro.app.map.dto.MapPostSummary;
 import com.example.moro.app.map.service.MapService;
 import com.example.moro.app.member.entity.Member;
-import com.example.moro.app.member.service.MemberService;
 import com.example.moro.global.common.ApiResponseTemplate;
-import com.example.moro.global.common.ErrorCode;
 import com.example.moro.global.common.SuccessCode;
-import com.example.moro.global.exception.BusinessException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
+
+import static com.example.moro.global.util.SecurityUtil.getCurrentMember;
 
 @RestController
 @RequestMapping("/api/map")
@@ -24,7 +19,6 @@ import java.util.List;
 public class MapController {
 
     private final MapService mapService;
-    private final MemberService memberService;
 
     @GetMapping
     public ResponseEntity<ApiResponseTemplate<List<MapPostSummary>>> getMapByLocation(@RequestParam double lat, @RequestParam double lng, @RequestParam double radius)
@@ -56,17 +50,5 @@ public class MapController {
         );
     }
 
-
-    private Member getCurrentMember() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-
-        if (authentication == null || !authentication.isAuthenticated()) {
-            throw new BusinessException(ErrorCode.UNAUTHORIZED_EXCEPTION);
-        }
-
-        String email = authentication.getName();
-
-        return memberService.findByEmail(email);
-    }
 
 }

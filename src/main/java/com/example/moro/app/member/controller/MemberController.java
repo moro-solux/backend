@@ -5,11 +5,9 @@ import com.example.moro.app.member.dto.*;
 import com.example.moro.app.member.entity.Member;
 import com.example.moro.app.member.service.MemberService;
 import com.example.moro.global.common.ApiResponseTemplate;
-import com.example.moro.global.common.ErrorCode;
 import com.example.moro.global.common.SuccessCode;
 
 import com.example.moro.global.common.dto.PageResponse;
-import com.example.moro.global.exception.BusinessException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -17,9 +15,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+
+import static com.example.moro.global.util.SecurityUtil.getCurrentMember;
 
 @RestController
 @RequiredArgsConstructor
@@ -28,7 +26,6 @@ public class MemberController {
 
     private final MemberService memberService;
     private final FollowService followService;
-
 
     @GetMapping("/{userId}/followers")
     public ResponseEntity<?> getFollowerList(
@@ -121,17 +118,6 @@ public class MemberController {
         memberService.updateRepresentativeColors(me.getId(), request.getColorIds());
 
         return ApiResponseTemplate.success(SuccessCode.RESOURCE_UPDATED, "대표 색상이 성공적으로 변경되었습니다.");
-    }
-
-
-    private Member getCurrentMember() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-
-        if (authentication == null || !authentication.isAuthenticated()) {
-            throw new BusinessException(ErrorCode.UNAUTHORIZED_EXCEPTION);
-        }
-
-        return memberService.findByEmail(authentication.getName());
     }
 
 
