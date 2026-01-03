@@ -53,6 +53,7 @@ public class MissionPostService {
         return new MissionSubjectResponse(
                 mission.getMissionId(),
                 mission.getMissionTitle(),
+                mission.getMissionType(),
                 mission.getCreatedAt()
         );
     }
