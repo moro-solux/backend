@@ -23,6 +23,13 @@ public class MissionPostController {
     private final MissionPostService missionPostService;
     private final MisCommentService missionCommentService;
 
+    // < 미션 주제 조회 >
+    @GetMapping("now")
+    public ResponseEntity<ApiResponseTemplate<MissionSubjectResponse>> getMissionNow(){
+        MissionSubjectResponse response = missionPostService.getSubject();
+        return ApiResponseTemplate.success(SuccessCode.RESOURCE_RETRIEVED, response);
+    }
+
     // <미션 업로드>
     // POST 방식으로 사진과 데이터를 함께 받음
     @PostMapping(value = "/upload",consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
@@ -63,11 +70,14 @@ public class MissionPostController {
         return ApiResponseTemplate.success(SuccessCode.RESOURCE_RETRIEVED, response);
     }
 
-    // < 미션 주제 조회 >
-    @GetMapping("now")
-    public ResponseEntity<ApiResponseTemplate<MissionSubjectResponse>> getMissionNow(){
-        MissionSubjectResponse response = missionPostService.getSubject();
-        return ApiResponseTemplate.success(SuccessCode.RESOURCE_RETRIEVED, response);
+    // <미션 게시물 삭제>
+    @DeleteMapping("posts/{misPostId}/delete")
+    public ResponseEntity<ApiResponseTemplate<Void>> deleteMissionPost(
+            @AuthenticationPrincipal Member member,
+            @PathVariable Long misPostId
+    ){
+        missionPostService.deleteMissionPost(member.getEmail(), misPostId);
+        return ApiResponseTemplate.success(SuccessCode.RESOURCE_RETRIEVED, null);
     }
 
     // <특정 미션 게시물 모든 댓글 조회>

@@ -8,6 +8,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter
@@ -36,5 +38,11 @@ public class MissionPost {
 
     private Double lat;   // 위도  // 안쓸듯
     private Double lng;   // 경도
+
+
+    // 댓글과의 양방향 연관관계 및 삭제 전이 설정
+    @OneToMany(mappedBy = "missionPost", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default //초기화 유지
+    private List<MisComment> comments = new ArrayList<>();
 
 }
