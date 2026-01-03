@@ -27,16 +27,16 @@ public class ColorExtractor {
 
     public List<Integer> extractTop4Colors(String imageUrl) {
         try {
-            // 분석 속도 향상을 위한 리사이징
+            // 분석 정확도 향상을 위한 리사이징 (더 큰 해상도)
             BufferedImage resizedImage = Thumbnails.of(new URL(imageUrl))
-                    .size(100, 100)
+                    .size(600, 600)
                     .asBufferedImage();
 
             Map<Integer, Integer> idCounts = new HashMap<>();
 
-            // 이미지 모든 픽셀을 돌며 가장 가까운 팔레트 ID 카운트
-            for (int y = 0; y < resizedImage.getHeight(); y++) {
-                for (int x = 0; x < resizedImage.getWidth(); x++) {
+            // 샘플링 적용: 8픽셀 단위로 분석하여 효율성 유지
+            for (int y = 0; y < resizedImage.getHeight(); y += 8) {
+                for (int x = 0; x < resizedImage.getWidth(); x += 8) {
                     int rgb = resizedImage.getRGB(x, y);
                     int r = (rgb >> 16) & 0xFF;
                     int g = (rgb >> 8) & 0xFF;
@@ -63,16 +63,16 @@ public class ColorExtractor {
     // 기존 extractTop4Colors와 달리 실제 픽셀 비율을 계산해서 반환
     public List<ColorAnalysisResult> extractTop4ColorsWithRatio(String imageUrl) {
         try {
-            // 분석 속도 향상을 위한 리사이징
+            // 분석 정확도 향상을 위한 리사이징 (더 큰 해상도)
             BufferedImage resizedImage = Thumbnails.of(new URL(imageUrl))
-                    .size(100, 100)
+                    .size(600, 600)
                     .asBufferedImage();
 
             Map<Integer, Integer> idCounts = new HashMap<>();
 
-            // 이미지 모든 픽셀을 돌며 가장 가까운 팔레트 ID 카운트
-            for (int y = 0; y < resizedImage.getHeight(); y++) {
-                for (int x = 0; x < resizedImage.getWidth(); x++) {
+            // 샘플링 적용: 8픽셀 단위로 분석하여 효율성 유지
+            for (int y = 0; y < resizedImage.getHeight(); y += 8) {
+                for (int x = 0; x < resizedImage.getWidth(); x += 8) {
                     int rgb = resizedImage.getRGB(x, y);
                     int r = (rgb >> 16) & 0xFF;
                     int g = (rgb >> 8) & 0xFF;
@@ -83,8 +83,8 @@ public class ColorExtractor {
                 }
             }
 
-            // 총 픽셀 수 계산 (비율 계산을 위해)
-            int totalPixels = resizedImage.getWidth() * resizedImage.getHeight();
+            // 샘플링된 픽셀 수 계산 (비율 계산을 위해)
+            int totalPixels = (resizedImage.getWidth() / 8) * (resizedImage.getHeight() / 8);
 
             // 빈도수 기준 내림차순 정렬 후 상위 4개 추출 (비율 포함)
             return idCounts.entrySet().stream()
