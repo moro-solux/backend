@@ -5,10 +5,7 @@ import com.example.moro.app.follow.entity.Follow;
 import com.example.moro.app.follow.entity.FollowStatus;
 import com.example.moro.app.member.entity.Member;
 import com.example.moro.app.member.repository.MemberRepository;
-import com.example.moro.app.mission.dto.MisCommentRequest;
-import com.example.moro.app.mission.dto.MisCommentResponse;
-import com.example.moro.app.mission.dto.MissionPostRequest;
-import com.example.moro.app.mission.dto.MissionPostResponse;
+import com.example.moro.app.mission.dto.*;
 import com.example.moro.app.mission.entity.MisComment;
 import com.example.moro.app.mission.entity.Mission;
 import com.example.moro.app.mission.entity.MissionPost;
@@ -37,7 +34,6 @@ public class MissionPostService {
     private final MemberRepository memberRepository;
     private final S3Service s3Service;
     private final FollowRepository followRepository;
-    private final MisCommentRepository misCommentRepository;
 
     @Transactional
     public Long saveMissionPost(MultipartFile image, MissionPostRequest request) {
@@ -115,65 +111,38 @@ public class MissionPostService {
                 .toList();
     }
 
-    // 댓글 조회
+    // < 미션 주제 조회 >
     @Transactional(readOnly = true)
-    public List<MisCommentResponse> getMisComments(Long misPostId){
+    public MissionSubjectResponse getSubject(){
+        // 가장 최근에 생성된 미션 조회
+        Mission mission = missionRepository.findFirstByOrderByCreatedAtDesc()
+                .orElseThrow(() -> new BusinessException(ErrorCode.RESOURCE_NOT_FOUND, "미션을 찾을 수 없습니다."));
 
-        // 모든 댓글 조회
-        return misCommentRepository.findByMissionPost_MisPostIdOrderByMisCreatedAtAsc(misPostId)
-                .stream()
-                .map(comment -> new MisCommentResponse(
-                        comment.getMisCommentId(),
-                        comment.getMisContent(),
-                        comment.getMissionPost().getMember().getUserName(),
-                        comment.getMisCreatedAt()
-                ))
-                .toList();
-    }
+        // 현재 시각 기준 오전/오후 유효성 검증
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime missionTime = mission.getCreatedAt();
 
-    // 댓글 생성
-    @Transactional
-    public Long createMisComments (String email, MisCommentRequest request) {
-        Member member = memberRepository.findByEmail(email)
-                .orElseThrow(()-> new BusinessException(ErrorCode.RESOURCE_NOT_FOUND,"사용자를 찾을 수 없습니다."));
-
-        MissionPost post = missionPostRepository.findById(request.misPostId())
-                .orElseThrow(() -> new BusinessException(ErrorCode.RESOURCE_NOT_FOUND,"미션 게시글을 찾을 수 없습니다."));
-
-        MisComment comment = MisComment.builder()
-                .missionPost(post)
-                .member(member)
-                .misContent(request.misContent())
-                .misCreatedAt(LocalDateTime.now())
-                .build();
-
-        return misCommentRepository.save(comment).getMisCommentId();
-    }
-
-    // 댓글 수정
-    @Transactional
-    public void updateMisComments(String email, Long misCommentId, String newContent){
-        MisComment comment = misCommentRepository.findById(misCommentId)
-                .orElseThrow(()-> new IllegalArgumentException("댓글을 찾을 수 없습니다."));
-
-        // 본인 확인
-        if(!comment.getMember().getEmail().equals(email)) {
-            throw new RuntimeException("본인이 작성한 댓글만 수정할 수 있습니다.");
-        }
-        comment.updateContent(newContent);
-    }
-
-    // 댓글 삭제
-    @Transactional
-    public void deleteMisComments(String email, Long misCommentId){
-        MisComment comment = misCommentRepository.findById(misCommentId)
-                .orElseThrow(()-> new IllegalArgumentException("댓글을 찾을 수 없습니다."));
-
-        // 본인 확인
-        if(!comment.getMember().getEmail().equals(email)) {
-            throw new RuntimeException("본인이 작성한 댓글만 삭제할 수 있습니다.");
+        // 날짜가 다르거나, 오전/오후 시간대가 일치하지 않으면 예외 발생
+        if(!isSameTimeWindow(now, missionTime)){
+            throw new BusinessException(ErrorCode.RESOURCE_NOT_FOUND,"현재 유효한 미션이 없습니다.");
         }
 
-        misCommentRepository.delete(comment);
+        return new MissionSubjectResponse(
+                mission.getMissionId(),
+                mission.getMissionTitle(),
+                mission.getCreatedAt()
+        );
+    }
+
+    private boolean isSameTimeWindow(LocalDateTime now, LocalDateTime missionTime){
+        // 날짜 같은지
+        boolean isSameDay = now.toLocalDate().isEqual(missionTime.toLocalDate());
+
+        // 오전 여부 확인
+        boolean isNowMorning = now.getHour() < 12;
+        boolean isMissionMorning = missionTime.getHour() < 12;
+
+        return isSameDay && (isNowMorning == isMissionMorning);
+
     }
 }
