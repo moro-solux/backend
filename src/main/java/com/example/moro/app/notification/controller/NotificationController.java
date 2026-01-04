@@ -1,7 +1,9 @@
 package com.example.moro.app.notification.controller;
 
 import com.example.moro.app.member.entity.Member;
+import com.example.moro.app.notification.dto.FcmTokenRequest;
 import com.example.moro.app.notification.dto.NotificationResponse;
+import com.example.moro.app.notification.service.FcmService;
 import com.example.moro.app.notification.service.NotificationService;
 import com.example.moro.app.notification.service.SseEmitterService;
 import com.example.moro.global.common.ApiResponseTemplate;
@@ -25,6 +27,7 @@ public class NotificationController {
 
     private final NotificationService notificationService;
     private final SseEmitterService sseEmitterService;
+    private final FcmService fcmService;
 
 
     @GetMapping(value = "/stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
@@ -36,6 +39,19 @@ public class NotificationController {
 
         Member me = getCurrentMember();
         return sseEmitterService.subscribe(me.getId());
+    }
+
+    @PostMapping("/token")
+    public ResponseEntity<ApiResponseTemplate<Void>> registerFcmToken(@RequestBody FcmTokenRequest request) {
+        Member me = getCurrentMember();
+        fcmService.registerToken(me.getId(), request.getFcmToken());
+        return ApiResponseTemplate.success(SuccessCode.OPERATION_SUCCESSFUL, null);
+    }
+
+    @DeleteMapping("/token")
+    public ResponseEntity<ApiResponseTemplate<Void>> deleteFcmToken(@RequestParam String token) {
+        fcmService.deleteToken(token);
+        return ApiResponseTemplate.success(SuccessCode.OPERATION_SUCCESSFUL, null);
     }
 
 
