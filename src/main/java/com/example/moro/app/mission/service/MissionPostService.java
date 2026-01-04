@@ -119,8 +119,8 @@ public class MissionPostService {
 
     // 미션 게시글 조회(나)
     @Transactional(readOnly = true)
-    public List<MissionPostResponse> getMyPosts(Long userId){
-        return missionPostRepository.findByMember_IdOrderByCreatedAtDesc(userId)
+    public List<MissionPostResponse> getMyPosts(Long userId) {
+        return missionPostRepository.findByMemberIdOrderByCreatedAtDesc(userId)
                 .stream()
                 .map(MissionPostResponse::from)
                 .toList();
@@ -137,10 +137,13 @@ public class MissionPostService {
 
     // 미션 게시물 조회(친구)
     @Transactional(readOnly = true)
-    public List<MissionPostResponse> getFriendPosts(Long currentUserId){
+    public List<MissionPostResponse> getFriendPosts(String email){
+
+        Member member = memberRepository.findByEmail(email)
+                .orElseThrow(()-> new BusinessException(ErrorCode.RESOURCE_NOT_FOUND,"사용자를 찾을 수 없습니다."));
 
         // 1. 내가 '팔로워' 이고 상태가 'ACCEPTED'인 follow 객체 조회
-        List<Follow> follows = followRepository.findByFollowerIdAndStatus(currentUserId, FollowStatus.ACCEPTED);
+        List<Follow> follows = followRepository.findByFollowerIdAndStatus(member.getId(), FollowStatus.ACCEPTED);
 
         // [추가] 친구 id 리스트 비었을 경우 빈 리스트 반환
         if (follows.isEmpty()) {
@@ -158,7 +161,7 @@ public class MissionPostService {
         }
 
         // 3. 친구들이 작성한 게시글 조회
-        return missionPostRepository.findByMember_IdInOrderByCreatedAtDesc(friendIds)
+        return missionPostRepository.findByMemberIdInOrderByCreatedAtDesc(friendIds)
                 .stream()
                 .map(MissionPostResponse::from)
                 .toList();

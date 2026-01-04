@@ -13,13 +13,13 @@ import java.util.List;
 public interface MissionPostRepository extends JpaRepository<MissionPost,Long> {
 
     // 1. 내가 올린 미션 게시글 조회(최신순)
-    List<MissionPost> findByMember_IdOrderByCreatedAtDesc(Long memberId);
+    List<MissionPost> findByMemberIdOrderByCreatedAtDesc(Long userId);
 
     // 2. 전체 사용자 미션 게시글 조회(랜덤)
     @Query(value = "SELECT * FROM mission_post ORDER BY RAND()", nativeQuery = true)
     List<MissionPost> findAllByOrderByRandom();
 
     // 3. 팔로워들의 미션 게시글 조회(최신순)
-    List<MissionPost> findByMember_IdInOrderByCreatedAtDesc(List<Long> memberIds);
+    List<MissionPost> findByMemberIdInOrderByCreatedAtDesc(List<Long> memberIds);
 
 }

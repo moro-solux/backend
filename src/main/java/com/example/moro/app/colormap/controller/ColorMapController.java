@@ -70,16 +70,16 @@ public class ColorMapController {
             @RequestBody UpdateMainColorRequest request
     ){
         UpdateMainColorResponse response = colorMapService.updatePostMainColor(email, postId, request.newColorId());
-        return ApiResponseTemplate.success(SuccessCode.RESOURCE_RETRIEVED, response);
+        return ApiResponseTemplate.success(SuccessCode.RESOURCE_UPDATED, response);
     }
 
     // 4. 게시물 삭제
     @DeleteMapping("/posts/{postId}")
-    public ResponseEntity<ApiResponseTemplate<Void>> deletePost(
+    public ResponseEntity<?> deletePost(
             @AuthenticationPrincipal String email,
             @PathVariable Long postId
     ){
         colorMapService.deletePost(email, postId);
-        return ApiResponseTemplate.success(SuccessCode.RESOURCE_RETRIEVED, null);
+        return ApiResponseTemplate.success(SuccessCode.RESOURCE_DELETED, "해당 게시물이 성공적으로 삭제되었습니다.");
     }
 }

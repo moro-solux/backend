@@ -38,15 +38,15 @@ public class MissionPostController {
             @RequestPart("data") MissionPostRequest request
     ) {
         MissionPostResponse response = missionPostService.saveMissionPost(image, request);
-        return ApiResponseTemplate.success(SuccessCode.RESOURCE_RETRIEVED, response);
+        return ApiResponseTemplate.success(SuccessCode.RESOURCE_CREATED, response);
     }
 
     // <미션 조회(자신)>
     @GetMapping("posts/me")
     public ResponseEntity<ApiResponseTemplate<List<MissionPostResponse>>> getMyPosts(
-            @AuthenticationPrincipal Long userId // 현재 사용자
+            @AuthenticationPrincipal Member member // 현재 사용자
     ){
-        List<MissionPostResponse> response = missionPostService.getMyPosts(userId);
+        List<MissionPostResponse> response = missionPostService.getMyPosts(member.getId());
         return ApiResponseTemplate.success(SuccessCode.RESOURCE_RETRIEVED, response);
     }
 
@@ -62,7 +62,7 @@ public class MissionPostController {
     public ResponseEntity<ApiResponseTemplate<List<MissionPostResponse>>> getMyFreinds(
             @AuthenticationPrincipal Member member
     ){
-        List<MissionPostResponse> response = missionPostService.getFriendPosts(member.getId());
+        List<MissionPostResponse> response = missionPostService.getFriendPosts(member.getEmail());
         // 친구 없을 때 빈 리스트 반환
         if (response == null || response.isEmpty()) {
             return ApiResponseTemplate.success(SuccessCode.RESOURCE_RETRIEVED, response);
@@ -72,12 +72,12 @@ public class MissionPostController {
 
     // <미션 게시물 삭제>
     @DeleteMapping("posts/{misPostId}/delete")
-    public ResponseEntity<ApiResponseTemplate<Void>> deleteMissionPost(
+    public ResponseEntity<?> deleteMissionPost(
             @AuthenticationPrincipal Member member,
             @PathVariable Long misPostId
     ){
         missionPostService.deleteMissionPost(member.getEmail(), misPostId);
-        return ApiResponseTemplate.success(SuccessCode.RESOURCE_RETRIEVED, null);
+        return ApiResponseTemplate.success(SuccessCode.RESOURCE_DELETED, "해당 미션 게시물이 성공적으로 삭제되었습니다.");
     }
 
     // <특정 미션 게시물 모든 댓글 조회>
@@ -96,27 +96,27 @@ public class MissionPostController {
             @RequestBody MisCommentRequest request
     ){
         Long misCommentId = missionCommentService.createMisComments(member.getEmail(), request);
-        return ApiResponseTemplate.success(SuccessCode.RESOURCE_RETRIEVED, misCommentId);
+        return ApiResponseTemplate.success(SuccessCode.RESOURCE_CREATED, misCommentId);
     }
 
     // < 특정 댓글 수정 >
     @PatchMapping("posts/comments/{misCommentId}/edit")
-    public ResponseEntity<ApiResponseTemplate<Void>> updateComment(
+    public ResponseEntity<?> updateComment(
             @AuthenticationPrincipal Member member,
             @PathVariable("misCommentId") Long misCommentId,
             @RequestBody MisCommentUpdateRequest request
     ){
         missionCommentService.updateMisComments(member.getEmail(), misCommentId, request.newContent());
-        return ApiResponseTemplate.success(SuccessCode.RESOURCE_UPDATED, null);
+        return ApiResponseTemplate.success(SuccessCode.RESOURCE_UPDATED, "댓글이 성공적으로 수정되었습니다.");
     }
 
     // < 특정 댓글 삭제 >
     @DeleteMapping("posts/comments/{misCommentId}/delete")
-    public ResponseEntity<ApiResponseTemplate<Void>> deleteComment(
+    public ResponseEntity<?> deleteComment(
             @AuthenticationPrincipal Member member,
             @PathVariable("misCommentId") Long misCommentId
     ){
         missionCommentService.deleteMisComments(member.getEmail(), misCommentId);
-        return ApiResponseTemplate.success(SuccessCode.RESOURCE_UPDATED, null);
+        return ApiResponseTemplate.success(SuccessCode.RESOURCE_DELETED, "댓글이 성공적으로 삭제되었습니다.");
     }
 }
