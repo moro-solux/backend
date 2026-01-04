@@ -21,6 +21,7 @@ public class Notification {
     private Long receiverId;
 
     @Enumerated(EnumType.STRING)
+    @Column(length = 50, nullable = false)
     private NotificationType type;
 
     @Column(columnDefinition = "json")

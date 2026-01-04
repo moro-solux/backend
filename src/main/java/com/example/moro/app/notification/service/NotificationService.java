@@ -100,7 +100,7 @@ public class NotificationService {
     }
 
     @Transactional
-    public void notifyMission(Long receiverId) {
-        notifyInternal(receiverId, NotificationType.MISSION, null);
+    public void notifyColorUnlocked(Long receiverId) {
+        notifyInternal(receiverId, NotificationType.COLOR_UNLOCKED, null);
     }
 }
