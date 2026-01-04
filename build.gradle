@@ -60,6 +60,9 @@ dependencies {
     //색추출 위한 의존성
     implementation 'net.coobird:thumbnailator:0.4.20'
 
+    //fcm
+    implementation 'com.google.firebase:firebase-admin:9.7.0'
+
 }
 
 tasks.named('test') {

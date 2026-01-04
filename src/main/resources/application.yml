@@ -48,6 +48,5 @@ app:
     bucket: moro-s3-bucket
     region: ap-northeast-2
 
-
 jwt:
   secret: ${JWT_SECRET}
