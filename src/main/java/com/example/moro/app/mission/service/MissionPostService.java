@@ -18,9 +18,13 @@ import com.example.moro.global.exception.BusinessException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
 import org.springframework.transaction.annotation.Transactional;
+
+import javax.imageio.IIOException;
 
 /*
 *  이미지를 서버(s3)에 저장하고 그 결과인 url을 엔티티에 세팅함
@@ -34,6 +38,7 @@ public class MissionPostService {
     private final MemberRepository memberRepository;
     private final S3Service s3Service;
     private final FollowRepository followRepository;
+    private final ColorAnalysisService colorAnalysisService;
 
     // < 미션 주제 조회 >
     @Transactional(readOnly = true)
@@ -70,7 +75,7 @@ public class MissionPostService {
     }
 
     @Transactional
-    public Long saveMissionPost(MultipartFile image, MissionPostRequest request) {
+    public MissionPostResponse saveMissionPost(MultipartFile image, MissionPostRequest request) {
         // 1. 이미지 저장 로직
         // 실제 이미지는 s3에 저장, DB에는 그 경로를 저장함
         String imageUrl = s3Service.uploadImage(image);
@@ -86,9 +91,13 @@ public class MissionPostService {
         // 미션 타입에 따른 결과 데이터 결정
         String missionDetailValue;
         if(Boolean.TRUE.equals(mission.getMissionType())){
-            // 정확도 판별 미션일 경우 -> 색상 분석
-            //double score = calculateColorAccuracy(image, mission.getTargetColor());
-            //missionDetailValue = String.format("%.1f",score);
+            try{
+                // 정확도 판별 미션일 경우 -> 색상 분석
+                double score = colorAnalysisService.getMissionScore(image.getInputStream(), mission.getTargetColor());
+                missionDetailValue = String.format("%.1f", score);
+            }catch (IOException e){
+                throw new BusinessException(ErrorCode.INTERNAL_SERVER_ERROR, "이미지 분석 중 오류가 발생했습니다.");
+            }
         } else{  // 일반 미션일 경우
             missionDetailValue = "-1";
         }
@@ -98,13 +107,14 @@ public class MissionPostService {
                 .member(member)   // FK 연결
                 .mission(mission)   // FK 연결
                 .imageUrl(imageUrl)  // 저장된 사진 경로
-                //.detail(missionDetailValue)
+                .detail(missionDetailValue)
                 .lat(request.getLat())
                 .lng(request.getLng())
                 .createdAt(LocalDateTime.now())   // 생성 시간
                 .build();
 
-        return missionPostRepository.save(missionPost).getMisPostId();
+        MissionPost savedPost = missionPostRepository.save(missionPost);
+        return MissionPostResponse.from(savedPost);
     }
 
     // 미션 게시글 조회(나)

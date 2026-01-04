@@ -15,7 +15,7 @@ public class MissionPostResponse {
     private String missionTitle;  // 어떤 미션인지
     private String userName;  // 작성자 이름
     private String imageUrl;   // 이미지 경로
-    private String detail;    // 글 내용?
+    private String detail;    //
     private Double lat;
     private Double lon;
     private LocalDateTime createdAt;

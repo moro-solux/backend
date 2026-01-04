@@ -33,12 +33,12 @@ public class MissionPostController {
     // <미션 업로드>
     // POST 방식으로 사진과 데이터를 함께 받음
     @PostMapping(value = "/upload",consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<ApiResponseTemplate<Long>> uploadMissionPost(
+    public ResponseEntity<ApiResponseTemplate<MissionPostResponse>> uploadMissionPost(
             @RequestPart("image") MultipartFile image,
             @RequestPart("data") MissionPostRequest request
     ) {
-        Long savedId = missionPostService.saveMissionPost(image, request);
-        return ApiResponseTemplate.success(SuccessCode.RESOURCE_RETRIEVED, savedId);
+        MissionPostResponse response = missionPostService.saveMissionPost(image, request);
+        return ApiResponseTemplate.success(SuccessCode.RESOURCE_RETRIEVED, response);
     }
 
     // <미션 조회(자신)>
