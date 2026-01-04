@@ -7,14 +7,11 @@ import com.example.moro.app.follow.entity.Follow;
 import com.example.moro.app.member.entity.Member;
 import com.example.moro.app.member.service.MemberService;
 import com.example.moro.global.common.ApiResponseTemplate;
-import com.example.moro.global.common.ErrorCode;
 import com.example.moro.global.common.SuccessCode;
-import com.example.moro.global.exception.BusinessException;
+
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import static com.example.moro.global.util.SecurityUtil.getCurrentMember;
@@ -26,11 +23,9 @@ import static com.example.moro.global.util.SecurityUtil.getCurrentMember;
 public class FollowController {
 
     private final FollowService followService;
-    private final MemberService memberService;
-
 
     @PostMapping
-    public ResponseEntity<?> follow(@RequestBody FollowRequestDto request) {
+    public ResponseEntity<ApiResponseTemplate<FollowResponseDto>> follow(@RequestBody FollowRequestDto request) {
 
         Member me = getCurrentMember();
 
@@ -42,7 +37,7 @@ public class FollowController {
     }
 
     @DeleteMapping("/{targetUserId}")
-    public ResponseEntity<?> removeFollow(@PathVariable Long targetUserId) {
+    public ResponseEntity<ApiResponseTemplate<Void>> removeFollow(@PathVariable Long targetUserId) {
 
         Member member = getCurrentMember();
         followService.removeByFollower(member.getId(), targetUserId);
@@ -51,7 +46,7 @@ public class FollowController {
     }
 
     @PatchMapping("/{followId}/accept")
-    public ResponseEntity<?> acceptFollow(@PathVariable Long followId) {
+    public ResponseEntity<ApiResponseTemplate<FollowResponseDto>> acceptFollow(@PathVariable Long followId) {
 
         Member member = getCurrentMember();
         FollowResponseDto response = followService.approveFollow(followId, member.getId());
@@ -60,7 +55,7 @@ public class FollowController {
     }
 
     @DeleteMapping("/{followId}/reject")
-    public ResponseEntity<?> reject(@PathVariable Long followId) {
+    public ResponseEntity<ApiResponseTemplate<Void>> rejectFollow(@PathVariable Long followId) {
         Member me = getCurrentMember();
         followService.rejectByFollowing(followId, me.getId());
         return ApiResponseTemplate.success(SuccessCode.RESOURCE_DELETED, null);
