@@ -23,8 +23,8 @@ public interface FollowRepository extends JpaRepository<Follow, Long> {
     Page<Follow> findByFollowerIdAndStatus(Long followerId, FollowStatus status, Pageable pageable);
     Page<Follow> findByFollowingIdAndStatus(Long followingId, FollowStatus status, Pageable pageable);
 
-    int countByFollowerId(Long memberId);
-    int countByFollowingId(Long memberId);
+    int countByFollowingIdAndStatus(Long followingId, FollowStatus status);
+    int countByFollowerIdAndStatus(Long followerId, FollowStatus status);
 
     @Query("""
         select f

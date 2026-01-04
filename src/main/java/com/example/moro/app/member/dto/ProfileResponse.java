@@ -16,7 +16,7 @@ public class ProfileResponse {
     private String userName;
     private String userColorHex;
     private int colorCount;
-    private int postCount;
+    private int followerCount;
     private int followingCount;
     private boolean isCurrentUser;
     private boolean isVisible;

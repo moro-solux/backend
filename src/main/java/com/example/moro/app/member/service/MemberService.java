@@ -116,9 +116,9 @@ public class MemberService {
 
         int colorCount = userColorMapRepository.countByMemberAndUnlockedTrue(member);
 
-        int postCount = postRepository.countByMemberId(member.getId());
+        int followerCount = followRepository.countByFollowingIdAndStatus(member.getId(), FollowStatus.ACCEPTED);
 
-        int followingCount = followRepository.countByFollowerId(member.getId());
+        int followingCount = followRepository.countByFollowerIdAndStatus(member.getId(), FollowStatus.ACCEPTED);
 
         List<UserColor> colorCodes = Collections.emptyList();
         if(isVisible) {
@@ -138,7 +138,7 @@ public class MemberService {
                 .userName(member.getUserName())
                 .userColorHex(userColorHex)
                 .colorCount(colorCount)
-                .postCount(postCount)
+                .followerCount(followerCount)
                 .followingCount(followingCount)
                 .isCurrentUser(member.getId().equals(currentUserId))
                 .isVisible(isVisible)
