@@ -23,6 +23,9 @@ public class Notification {
     @Enumerated(EnumType.STRING)
     private NotificationType type;
 
+    @Column(columnDefinition = "json")
+    private String content;
+
     @Column(name= "isRead")
     private boolean read;
 
@@ -32,6 +35,21 @@ public class Notification {
     public void prePersist(){
         createdAt = LocalDateTime.now();
         read = false;
+    }
+
+    public static Notification create(Long receiverId, NotificationType type) {
+        return Notification.builder()
+                .receiverId(receiverId)
+                .type(type)
+                .build();
+    }
+
+    public static Notification create(Long receiverId, NotificationType type, String content) {
+        return Notification.builder()
+                .receiverId(receiverId)
+                .type(type)
+                .content(content)
+                .build();
     }
 
 
