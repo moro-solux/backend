@@ -22,18 +22,6 @@ public class NotificationService {
     private final ObjectMapper objectMapper;
 
 
-    @Transactional
-    public void notify(Long receiverId, NotificationType type) {
-
-        Notification notification =
-                notificationRepository.save(Notification.create(receiverId, type));
-
-        if (sseEmitterService.isConnected(receiverId)) {
-            sseEmitterService.send(receiverId, notification);
-        } else {
-            fcmService.sendPush(receiverId, type);
-        }
-    }
 
     @Transactional(readOnly = true)
     public List<NotificationResponse> getMyNotifications(Long userId) {

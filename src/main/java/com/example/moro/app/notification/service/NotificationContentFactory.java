@@ -50,12 +50,6 @@ public class NotificationContentFactory {
         ));
     }
 
-    public String unlocked(String colorName, String colorHex) {
-        return toJson(Map.of(
-                "colorName", colorName,
-                "colorHex", colorHex
-        ));
-    }
 
     private String toJson(Map<String, Object> content) {
         try {
