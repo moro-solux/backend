@@ -9,7 +9,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -24,11 +28,33 @@ public class NotificationService {
 
 
     @Transactional(readOnly = true)
-    public List<NotificationResponse> getMyNotifications(Long userId) {
-        return notificationRepository.findByReceiverIdOrderByCreatedAtDesc(userId)
-                .stream()
-                .map(n -> NotificationResponse.from(n, objectMapper))
+    public Map<String, List<NotificationResponse>> getMyNotificationsGrouped(Long memberId) {
+
+        List<Notification> notifications = notificationRepository.findByReceiverId(memberId);
+        ObjectMapper om = new ObjectMapper();
+
+        List<NotificationResponse> responseList = notifications.stream()
+                .map(n -> NotificationResponse.from(n, om))
                 .toList();
+
+        Map<String, List<NotificationResponse>> grouped = new LinkedHashMap<>();
+        LocalDateTime now = LocalDateTime.now();
+
+        for (int i = 0; i < notifications.size(); i++) {
+            Notification n = notifications.get(i);
+            NotificationResponse r = responseList.get(i);
+
+            long daysDiff = java.time.Duration.between(n.getCreatedAt().toLocalDate().atStartOfDay(), now.toLocalDate().atStartOfDay()).toDays();
+            String key;
+            if (daysDiff == 0) key = "Today";
+            else if (daysDiff == 1) key = "Yesterday";
+            else if (daysDiff <= 7) key = "Last 7 days";
+            else key = "Earlier";
+
+            grouped.computeIfAbsent(key, k -> new ArrayList<>()).add(r);
+        }
+
+        return grouped;
     }
 
     @Transactional
