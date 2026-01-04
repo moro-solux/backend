@@ -21,6 +21,8 @@ public class Mission {
 
     private Boolean missionType; // True = 정확도 판별 미션, False = 그 외...
 
+    private String targetColor;  // 정확도 판별할 타겟 컬러
+
     private LocalDateTime createdAt;   // 미션 생성 시간
 
 

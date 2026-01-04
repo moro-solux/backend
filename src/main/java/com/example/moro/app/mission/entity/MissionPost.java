@@ -36,9 +36,8 @@ public class MissionPost {
     private String imageUrl;   // 이미지
     private String detail;   // 상세
 
-    private Double lat;   // 위도  // 안쓸듯
-    private Double lng;   // 경도
-
+    //private Double lat;   // 위도  // 안쓸듯
+    //private Double lng;   // 경도
 
     // 댓글과의 양방향 연관관계 및 삭제 전이 설정
     @OneToMany(mappedBy = "missionPost", cascade = CascadeType.ALL, orphanRemoval = true)

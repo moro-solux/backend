@@ -6,6 +6,7 @@ public record MissionSubjectResponse(
         Long missionId,
         String missionTitle,
         Boolean missionType,
+        String targetColor,
         LocalDateTime createdAt
 ){
 
