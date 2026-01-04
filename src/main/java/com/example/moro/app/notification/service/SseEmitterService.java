@@ -1,6 +1,8 @@
 package com.example.moro.app.notification.service;
 
 import com.example.moro.app.notification.repository.EmitterRepository;
+import com.example.moro.global.common.ErrorCode;
+import com.example.moro.global.exception.BusinessException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
@@ -26,6 +28,8 @@ public class SseEmitterService {
                     .data("connected"));
         } catch (IOException e) {
             emitterRepository.delete(userId);
+            throw new BusinessException(ErrorCode.SSE_CONNECTION_ERROR, "SSE 구독 중 연결 실패: " + e.getMessage());
+
         }
 
         emitter.onCompletion(() -> emitterRepository.delete(userId));
@@ -37,7 +41,10 @@ public class SseEmitterService {
 
     public void send(Long userId, Object data) {
         SseEmitter emitter = emitterRepository.get(userId);
-        if (emitter == null) return;
+        if (emitter == null) {
+            throw new BusinessException(ErrorCode.SSE_NOT_CONNECTED, "해당 유저는 SSE에 연결되어 있지 않습니다.");
+
+        }
 
         try {
             emitter.send(SseEmitter.event()
@@ -46,6 +53,8 @@ public class SseEmitterService {
                     .data(data));
         } catch (IOException e) {
             emitterRepository.delete(userId);
+            throw new BusinessException(ErrorCode.SSE_SEND_ERROR, "SSE 전송 중 오류 발생: " + e.getMessage());
+
         }
     }
 
