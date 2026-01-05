@@ -12,7 +12,7 @@ import lombok.Setter;
 public class MissionPostRequest {
     private Long missionId;  // 미션
     private Long userId;   // 작성자
-    private String detail;   // 상세 내용
-    private Double lat;  // 위도
-    private Double lng;  // 경도
+    //private String detail;   // 상세 내용
+    //private Double lat;  // 위도
+    //private Double lng;  // 경도
 }
