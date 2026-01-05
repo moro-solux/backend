@@ -5,6 +5,7 @@ import com.example.moro.app.colormap.entity.UserColorMap;
 import com.example.moro.app.colormap.repository.ColorMapRepository;
 import com.example.moro.app.colormap.repository.UserColorMapRepository;
 import com.example.moro.app.member.entity.Member;
+import com.example.moro.app.s3.S3Service;
 import com.example.moro.app.notification.service.NotificationService;
 import com.example.moro.app.post.dto.PostRequestDto;
 import com.example.moro.app.post.dto.PostResponseDto;
@@ -44,6 +45,7 @@ public class PostService {
     private final ColorExtractor colorExtractor;
     private final ColorMapRepository colorMapRepository;
     private final UserColorMapRepository userColorMapRepository;
+    private final S3Service s3Service;
 
     private final NotificationService notificationService;
 

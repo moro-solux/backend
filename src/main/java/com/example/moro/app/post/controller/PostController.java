@@ -5,6 +5,7 @@ import com.example.moro.app.post.dto.CaptureRequest;
 import com.example.moro.app.post.dto.CaptureResponse;
 import com.example.moro.app.post.dto.LocationUpdateRequest;
 import com.example.moro.app.post.dto.ShareResponse;
+import com.example.moro.app.s3.S3Service;
 import com.example.moro.app.post.dto.MainColorRequest;
 import com.example.moro.app.post.dto.PostRequestDto;
 import com.example.moro.app.post.dto.PostResponseDto;
@@ -18,12 +19,16 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
 
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/posts")
 public class PostController {
     private final PostService postService;
+    private final S3Service s3Service;
 
     //게시물 생성
     @PostMapping
@@ -71,10 +76,18 @@ public class PostController {
     // 1. 사진 촬영 → 임시 게시물 생성 + 미리보기
     @PostMapping("/capture")
     public ResponseEntity<ApiResponseTemplate<CaptureResponse>> capturePhoto(
-            @RequestBody CaptureRequest request,
-            @AuthenticationPrincipal Member member) {
+            @RequestParam("image") MultipartFile image,
+            @RequestParam("lat") Double lat,
+            @RequestParam("lng") Double lng,
+            @AuthenticationPrincipal Member member) throws IOException {
 
+        // S3에 이미지 업로드
+        String imageUrl = s3Service.uploadImage(image);
+
+        // 기존 로직에 S3 URL 적용
+        CaptureRequest request = new CaptureRequest(imageUrl, lat, lng);
         CaptureResponse response = postService.createDraftFromCapture(request, member);
+
         return ApiResponseTemplate.success(SuccessCode.RESOURCE_CREATED, response);
     }
 
