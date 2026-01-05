@@ -13,6 +13,8 @@ import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import software.amazon.awssdk.services.s3.model.S3Exception;
 
 import java.io.IOException;
+import java.net.URLEncoder; // 추가
+import java.nio.charset.StandardCharsets; // 추가
 import java.util.UUID;
 
 @Service
@@ -34,6 +36,7 @@ public class S3Service {
     public String uploadImage(MultipartFile image){
         try{
             String fileName = UUID.randomUUID() + "_" + image.getOriginalFilename();
+            String encodedFileName = URLEncoder.encode(fileName, StandardCharsets.UTF_8.toString()).replace("+", "%20"); // URL 인코딩 추가
 
             PutObjectRequest request = PutObjectRequest.builder()
                     .bucket(bucketName)
@@ -44,7 +47,7 @@ public class S3Service {
 
             s3Client.putObject(request, RequestBody.fromInputStream(image.getInputStream(), image.getSize()));
 
-            return String.format("https://%s.s3.%s.amazonaws.com/%s", bucketName, region, fileName);
+            return String.format("https://%s.s3.%s.amazonaws.com/%s", bucketName, region, encodedFileName);
         } catch (S3Exception e) {
             if (e.statusCode() == 403) {
                 throw new BusinessException(ErrorCode.S3_ACCESS_DENIED);

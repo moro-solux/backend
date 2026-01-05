@@ -97,6 +97,13 @@ public class ColorExtractor {
                     .collect(Collectors.toList());
 
         } catch (Exception e) {
+            // 예외 발생 시 상세 로그 추가
+            System.err.println("ColorExtractor: !!! ERROR during image processing or URL access !!!");
+            System.err.println("ColorExtractor: Image URL: " + imageUrl);
+            System.err.println("ColorExtractor: Exception Type: " + e.getClass().getName());
+            System.err.println("ColorExtractor: Exception Message: " + e.getMessage());
+            e.printStackTrace(); // 스택 트레이스 전체 출력
+
             // 에러 시 기본값 반환 (비율은 균등하게)
             return Arrays.asList(
                 new ColorAnalysisResult(1, 0.25),
