@@ -20,14 +20,14 @@ jobs:
       - name: Make application.yml
         run: |
           mkdir -p ./src/main/resources
-          echo "${{ secrets.APPLICATION_SECRET_YML }}" | base64 --decode > ./src/main/resources/application.yml
+          echo "${{ secrets.APPLICATION }}" | base64 --decode > ./src/main/resources/application.yml
 
 
       # firebase json 생성
       - name: Make firebase key
         run: |
           mkdir -p ./src/main/resources/firebase
-          echo "${{ secrets.FIREBASE_JSON_SECRET }}" | base64 --decode > ./src/main/resources/firebase/firebase-key.json
+          echo "${{ secrets.FIREBASE_JSON }}" | base64 --decode > ./src/main/resources/firebase/firebase-key.json
 
       - name: Build with Gradle
         run: |
