@@ -24,12 +24,13 @@ public class NotificationContentFactory {
         ));
     }
 
-    public String commented(Long actorId, String actorName,
+    public String commented(Long actorId, String actorName, String targetType,
                             Long postId, Long commentId, String commentPreview) {
 
         return toJson(Map.of(
                 "actorId", actorId,
                 "actorName", actorName,
+                "targetType", targetType,
                 "postId", postId,
                 "commentId", commentId,
                 "commentPreview", commentPreview

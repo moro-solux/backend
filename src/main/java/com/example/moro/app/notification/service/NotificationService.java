@@ -90,10 +90,10 @@ public class NotificationService {
     }
 
     @Transactional
-    public void notifyComment(Long receiverId, Long actorId, String actorName, Long postId, Long commentId, String commentPreview) {
+    public void notifyComment(Long receiverId, Long actorId, String actorName, String targetType, Long postId, Long commentId, String commentPreview) {
 
         String content = notificationContentFactory.commented(
-                actorId, actorName, postId, commentId, commentPreview
+                actorId, actorName, targetType, postId, commentId, commentPreview
         );
 
         notifyInternal(receiverId, NotificationType.COMMENT, content);
