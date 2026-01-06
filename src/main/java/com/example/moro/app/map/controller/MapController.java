@@ -6,6 +6,7 @@ import com.example.moro.app.map.service.MapService;
 import com.example.moro.app.member.entity.Member;
 import com.example.moro.global.common.ApiResponseTemplate;
 import com.example.moro.global.common.SuccessCode;
+import com.example.moro.global.util.SecurityUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -13,7 +14,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
-import static com.example.moro.global.util.SecurityUtil.getCurrentMember;
 
 @Tag(name = "Maps", description = "지도 API")
 @RestController
@@ -22,12 +22,14 @@ import static com.example.moro.global.util.SecurityUtil.getCurrentMember;
 public class MapController {
 
     private final MapService mapService;
+    private final SecurityUtil securityUtil;
+
 
     @Operation(summary = "지도 내 위치 기준 조회", description = "현재 내 위치(위도, 경도)를 기준으로 반경(radius) 내의 게시물을 조회합니다.")
     @GetMapping
     public ResponseEntity<ApiResponseTemplate<List<MapPostSummary>>> getMapByLocation(@RequestParam double lat, @RequestParam double lng, @RequestParam double radius)
     {
-        Member me = getCurrentMember();
+        Member me = securityUtil.getCurrentMember();
 
         return ApiResponseTemplate.success(
                 SuccessCode.OPERATION_SUCCESSFUL, mapService.getPostsByLocation(me.getId(), lat, lng, radius)
@@ -38,7 +40,7 @@ public class MapController {
     @GetMapping("/search")
     public ResponseEntity<ApiResponseTemplate<List<MapPostSummary>>> searchMap(@RequestParam String keyword, @RequestParam double radius)
     {
-        Member me = getCurrentMember();
+        Member me = securityUtil.getCurrentMember();
 
         return ApiResponseTemplate.success(
                 SuccessCode.OPERATION_SUCCESSFUL, mapService.searchPostsByKeyword(me.getId(), keyword, radius)
@@ -49,7 +51,7 @@ public class MapController {
     @GetMapping("/{postId}")
     public ResponseEntity<ApiResponseTemplate<MapPostDetailResponse>> getPostDetail(@PathVariable Long postId)
     {
-        Member me = getCurrentMember();
+        Member me = securityUtil.getCurrentMember();
 
         return ApiResponseTemplate.success(
                 SuccessCode.OPERATION_SUCCESSFUL, mapService.getPostDetail(me.getId(), postId)

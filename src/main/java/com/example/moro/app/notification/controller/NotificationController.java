@@ -9,6 +9,7 @@ import com.example.moro.app.notification.service.NotificationService;
 import com.example.moro.app.notification.service.SseEmitterService;
 import com.example.moro.global.common.ApiResponseTemplate;
 import com.example.moro.global.common.SuccessCode;
+import com.example.moro.global.util.SecurityUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletResponse;
@@ -21,7 +22,6 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 import java.util.List;
 import java.util.Map;
 
-import static com.example.moro.global.util.SecurityUtil.getCurrentMember;
 
 @Tag(name = "Notifications", description = "알림(FCM, SSE) 관련 API")
 @RestController
@@ -32,6 +32,8 @@ public class NotificationController {
     private final NotificationService notificationService;
     private final SseEmitterService sseEmitterService;
     private final FcmService fcmService;
+    private final SecurityUtil securityUtil;
+
 
     @Operation(summary = "알림 스트림 연결 (SSE)", description = "서버로부터 실시간 알림을 받기 위해 SSE 연결을 요청합니다. (EventStream)")
     @GetMapping(value = "/stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
@@ -41,14 +43,14 @@ public class NotificationController {
         response.setHeader("Connection", "keep-alive");
 
 
-        Member me = getCurrentMember();
+        Member me = securityUtil.getCurrentMember();
         return sseEmitterService.subscribe(me.getId());
     }
 
     @Operation(summary = "FCM 토큰 등록", description = "앱 로그인 시 발급받은 FCM 기기 토큰을 서버에 저장합니다.")
     @PostMapping("/token")
     public ResponseEntity<ApiResponseTemplate<Void>> registerFcmToken(@RequestBody FcmTokenRequest request) {
-        Member me = getCurrentMember();
+        Member me = securityUtil.getCurrentMember();
         fcmService.registerToken(me.getId(), request.getFcmToken());
         return ApiResponseTemplate.success(SuccessCode.OPERATION_SUCCESSFUL, null);
     }
@@ -70,7 +72,7 @@ public class NotificationController {
     @Operation(summary = "알림 목록 조회", description = "나에게 도착한 알림 목록을 그룹화(오늘, 어제 등)하여 조회합니다.")
     @GetMapping
     public ResponseEntity<ApiResponseTemplate<Map<String, List<NotificationResponse>>>> getMyNotifications() {
-        Member me = getCurrentMember();
+        Member me = securityUtil.getCurrentMember();
 
         Map<String, List<NotificationResponse>> groupedNotifications = notificationService.getMyNotificationsGrouped(me.getId());
 

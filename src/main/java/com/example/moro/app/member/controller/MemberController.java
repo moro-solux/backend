@@ -10,6 +10,7 @@ import com.example.moro.global.common.ApiResponseTemplate;
 import com.example.moro.global.common.SuccessCode;
 
 import com.example.moro.global.common.dto.PageResponse;
+import com.example.moro.global.util.SecurityUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -25,7 +26,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-import static com.example.moro.global.util.SecurityUtil.getCurrentMember;
 
 @Tag(name = "Users", description = "회원 및 프로필 관련 API")
 @RestController
@@ -36,6 +36,8 @@ public class MemberController {
     private final MemberService memberService;
     private final FollowService followService;
     private final UserColorMapService userColorMapService;
+    private final SecurityUtil securityUtil;
+
 
     @Operation(summary = "팔로워 목록 조회", description = "특정 유저의 팔로워 목록을 조회합니다. (키워드를 통한 검색 가능)")
     @GetMapping("/{userId}/followers")
@@ -69,7 +71,7 @@ public class MemberController {
     @Operation(summary = "팔로우 요청 받은 목록 조회", description = "나에게 들어온 팔로우 요청 목록을 조회합니다.")
     @GetMapping("/me/follow-requests")
     public ResponseEntity<ApiResponseTemplate<List<FollowUserResponse>>> getFollowRequestList() {
-        Member me = getCurrentMember();
+        Member me = securityUtil.getCurrentMember();
         Long userId = me.getId();
         return ApiResponseTemplate.success(SuccessCode.RESOURCE_RETRIEVED, followService.getRequestList(userId));
 
@@ -89,7 +91,7 @@ public class MemberController {
     @GetMapping("/{userId}/profile")
     public ResponseEntity<ApiResponseTemplate<ProfileResponse>> getUserProfile(@PathVariable Long userId) {
 
-        Member currentUser = getCurrentMember();
+        Member currentUser = securityUtil.getCurrentMember();
         Long currentUserId = currentUser.getId();
 
         ProfileResponse response = memberService.getProfile(userId, currentUserId);
@@ -101,7 +103,7 @@ public class MemberController {
     @Operation(summary = "프로필 수정", description = "나의 프로필 정보(이름, 프로필 배경색)를 수정합니다.")
     @PutMapping("/me/profile")
     public ResponseEntity<ApiResponseTemplate<String>> updateMyProfile(@RequestBody UpdateProfileRequest request) {
-        Member me = getCurrentMember();
+        Member me = securityUtil.getCurrentMember();
         memberService.updateProfile(
                 me.getId(),
                 request.getUserName(),
@@ -132,7 +134,7 @@ public class MemberController {
     public ResponseEntity<ApiResponseTemplate<String>> updateRepresentativeColors(
             @RequestBody UpdateRepresentativeColorsRequest request) {
 
-        Member me = getCurrentMember();
+        Member me = securityUtil.getCurrentMember();
         userColorMapService.updateRepresentativeColors(me.getId(), request.getColorIds());
 
         return ApiResponseTemplate.success(SuccessCode.RESOURCE_UPDATED, "대표 색상이 성공적으로 변경되었습니다.");
