@@ -177,6 +177,7 @@ public class ColorMapInitializer implements CommandLineRunner {
             colorMapRepository.saveAll(colors);
         }
 
+        /*
         List<Member> members = memberRepository.findAll();
         List<ColorMap> allColors = colorMapRepository.findAll();
 
@@ -194,6 +195,7 @@ public class ColorMapInitializer implements CommandLineRunner {
                 }
             }
         }
+         */
 
     }
 }

@@ -1,6 +1,7 @@
 package com.example.moro.app.auth.service;
 
 import com.example.moro.app.auth.dto.LoginResponse;
+import com.example.moro.app.colormap.service.UserColorMapService;
 import com.example.moro.app.member.entity.Member;
 import com.example.moro.app.member.service.MemberService;
 import com.example.moro.global.security.jwt.JwtProvider;
@@ -19,6 +20,7 @@ import java.util.Optional;
 public class AuthService {
     private final MemberService memberService;
     private final JwtProvider jwtProvider;
+    private final UserColorMapService userColorMapService;
     /**
      * 구글 인증 정보를 기잔으로 서비스 로그인을 수행
      * 1. 기존 회원 여부 확인 및 자동 가입
@@ -80,6 +82,8 @@ public class AuthService {
     public LoginResponse completeRegistration(String email, String userName) {
         // 이메일과 이름으로 최종 회원가입
         Member member = memberService.findOrCreateMember(email, userName);
+
+        userColorMapService.ensureUserColorMaps(member);
 
         // JWT 토큰 발급
         String token = jwtProvider.createToken(member.getEmail(), member.getRole().name());
