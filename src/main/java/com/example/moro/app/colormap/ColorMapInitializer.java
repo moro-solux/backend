@@ -177,23 +177,5 @@ public class ColorMapInitializer implements CommandLineRunner {
             colorMapRepository.saveAll(colors);
         }
 
-        List<Member> members = memberRepository.findAll();
-        List<ColorMap> allColors = colorMapRepository.findAll();
-
-        //회원가입 시 usercolormap이 자동으로 생성될 수 있도록 코드 위치 수정 필요합니다!!
-        for (Member member : members) {
-            for (ColorMap color : allColors) {
-                if (!userColorMapRepository.existsByMemberAndColorMap(member, color)) {
-                    UserColorMap ucm = new UserColorMap();
-                    ucm.setMember(member);
-                    ucm.setColorMap(color);
-                    ucm.setUnlocked(false);
-                    ucm.setPostCount(0);
-                    ucm.setIsRepresentative(false);
-                    userColorMapRepository.save(ucm);
-                }
-            }
-        }
-
     }
 }

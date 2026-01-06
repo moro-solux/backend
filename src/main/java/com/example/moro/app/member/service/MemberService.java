@@ -239,41 +239,5 @@ public class MemberService {
                 .build();
     }
 
-    @Transactional
-    public void updateRepresentativeColors(Long memberId, List<Long> colorIds) {
-
-        Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new BusinessException(
-                        ErrorCode.RESOURCE_NOT_FOUND, "회원이 존재하지 않습니다."
-                ));
-
-        userColorMapRepository.clearRepresentativeByMember(member);
-
-        if(colorIds == null || colorIds.isEmpty()) {
-            return;
-        }
-
-        if(colorIds.size() > 6) {
-            throw new BusinessException(ErrorCode.BAD_REQUEST, "대표 색상은 최대 6개까지 선택할 수 있습니다.");
-        }
-
-        boolean invalidRange = colorIds.stream().anyMatch(id -> id < 1 || id > 144);
-        if(invalidRange) {
-            throw new BusinessException(ErrorCode.BAD_REQUEST, "colorId는 1~144 범위 내의 값이어야 합니다.");
-        }
-
-
-        List<UserColorMap> maps = userColorMapRepository.findByMemberAndUnlockedIsTrueAndColorMap_ColorIdIn(member, colorIds);
-        if(maps.size() != colorIds.size()) {
-            throw new BusinessException( ErrorCode.BAD_REQUEST, "해금되지 않았거나 존재하지 않는 색상이 포함되어 있습니다.");
-        }
-
-        for(UserColorMap map : maps){
-            map.setIsRepresentative(true);
-        }
-
-    }
-
-
 }
 

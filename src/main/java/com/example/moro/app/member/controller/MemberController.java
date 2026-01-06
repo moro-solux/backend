@@ -1,5 +1,6 @@
 package com.example.moro.app.member.controller;
 
+import com.example.moro.app.colormap.service.UserColorMapService;
 import com.example.moro.app.follow.dto.FollowUserResponse;
 import com.example.moro.app.follow.service.FollowService;
 import com.example.moro.app.member.dto.*;
@@ -34,6 +35,7 @@ public class MemberController {
 
     private final MemberService memberService;
     private final FollowService followService;
+    private final UserColorMapService userColorMapService;
 
     @Operation(summary = "팔로워 목록 조회", description = "특정 유저의 팔로워 목록을 조회합니다. (키워드를 통한 검색 가능)")
     @GetMapping("/{userId}/followers")
@@ -125,13 +127,13 @@ public class MemberController {
         return ApiResponseTemplate.success(SuccessCode.RESOURCE_RETRIEVED, response);
     }
 
-    @Operation(summary = "프로필 피드 색상 목록 수정", description = "내 프로필에 표시되는 대표 색상 6가지를 수정합니다.")
+    @Operation(summary = "유저 대표 색상 목록 수정", description = "내 프로필에 표시되는 대표 색상 6가지를 수정합니다.")
     @PutMapping("/me/colors/main")
     public ResponseEntity<ApiResponseTemplate<String>> updateRepresentativeColors(
             @RequestBody UpdateRepresentativeColorsRequest request) {
 
         Member me = getCurrentMember();
-        memberService.updateRepresentativeColors(me.getId(), request.getColorIds());
+        userColorMapService.updateRepresentativeColors(me.getId(), request.getColorIds());
 
         return ApiResponseTemplate.success(SuccessCode.RESOURCE_UPDATED, "대표 색상이 성공적으로 변경되었습니다.");
     }
