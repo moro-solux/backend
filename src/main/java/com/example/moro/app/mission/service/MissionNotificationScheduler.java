@@ -20,8 +20,9 @@ public class MissionNotificationScheduler {
     private final MissionRepository missionRepository;
 
     //@Scheduled(cron = "*/1 * * * * *") // 매 1초마다 실행
-    @Scheduled(cron = "0 0 11,23 * * *") // 오전 11시와 오후 11시에만 실행
+    @Scheduled(cron = "0 0 11,23 * * *", zone= "Asia/Seoul") // 오전 11시와 오후 11시에만 실행
     public void sendMissionEndNotifications() {
+
         List<Mission> missions = missionRepository.findMissionsEndingInOneHour();
 
         for (Mission mission : missions) {
