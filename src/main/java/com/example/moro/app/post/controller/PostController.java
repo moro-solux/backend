@@ -48,8 +48,8 @@ public class PostController {
 
     //게시물 공유
     @PostMapping("/{postId}/share")
-    public ResponseEntity<ApiResponseTemplate<ShareResponse>> sharePost(@PathVariable Long postId,@AuthenticationPrincipal Member currentMember) {
-        ShareResponse response = postService.sharePost(postId,currentMember);
+    public ResponseEntity<ApiResponseTemplate<ShareResponse>> sharePost(@PathVariable Long postId, @AuthenticationPrincipal Member member) {
+        ShareResponse response = postService.sharePost(postId, member);
         return ApiResponseTemplate.success(SuccessCode.RESOURCE_UPDATED, response);
     }
 
@@ -83,6 +83,7 @@ public class PostController {
 
         // S3에 이미지 업로드
         String imageUrl = s3Service.uploadImage(image);
+        System.out.println("Uploaded image URL to S3: " + imageUrl); // S3 이미지 URL 로그 추가
 
         // 기존 로직에 S3 URL 적용
         CaptureRequest request = new CaptureRequest(imageUrl, lat, lng);
@@ -92,14 +93,14 @@ public class PostController {
     }
 
     // 2. 재촬영 → 임시 게시물 완전 삭제
-    @DeleteMapping("/drafts/{draftId}/retake")
-    public ResponseEntity<ApiResponseTemplate<Void>> retakePhoto(
-            @PathVariable Long draftId,
-            @AuthenticationPrincipal Member member) {
-
-        postService.deleteDraftCompletely(draftId, member);
-        return ApiResponseTemplate.success(SuccessCode.RESOURCE_DELETED, null);
-    }
+    // @DeleteMapping("/drafts/{draftId}/retake")
+    // public ResponseEntity<ApiResponseTemplate<Void>> retakePhoto(
+    //         @PathVariable Long draftId,
+    //         @AuthenticationPrincipal Member member) {
+    //
+    //     postService.deleteDraftCompletely(draftId, member);
+    //     return ApiResponseTemplate.success(SuccessCode.RESOURCE_DELETED, null);
+    // }
 
     // 3. 위치 조정
     @PatchMapping("/drafts/{draftId}/location")

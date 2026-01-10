@@ -233,15 +233,15 @@ public class PostService {
     }
 
     // 2. 재촬영 → 임시 게시물 완전 삭제
-    @Transactional
-    public void deleteDraftCompletely(Long draftId, Member member) {
-        Post draft = postRepository.findById(draftId)
-                .filter(post -> post.getMember().getId().equals(member.getId()))
-                .filter(post -> post.isDraft())
-                .orElseThrow(() -> new IllegalArgumentException("삭제할 수 없는 임시 게시물입니다."));
-
-        postRepository.delete(draft);
-    }
+    // @Transactional
+    // public void deleteDraftCompletely(Long draftId, Member member) {
+    //     Post draft = postRepository.findById(draftId)
+    //             .filter(post -> post.getMember().getId().equals(member.getId()))
+    //             .filter(post -> post.isDraft())
+    //             .orElseThrow(() -> new IllegalArgumentException("삭제할 수 없는 임시 게시물입니다."));
+    //
+    //     postRepository.delete(draft);
+    // }
 
     // 3. 위치 조정
     @Transactional
