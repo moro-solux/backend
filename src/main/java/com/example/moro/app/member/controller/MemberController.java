@@ -84,7 +84,7 @@ public class MemberController {
         Long userId = me.getId();
         followService.removeFollower(userId, targetUserId);
 
-        return ApiResponseTemplate.success(SuccessCode.RESOURCE_RETRIEVED, null);
+        return ApiResponseTemplate.success(SuccessCode.RESOURCE_DELETED, null);
 
     }
 
