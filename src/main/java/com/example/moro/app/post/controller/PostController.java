@@ -30,13 +30,6 @@ public class PostController {
     private final PostService postService;
     private final S3Service s3Service;
 
-    //게시물 생성
-    @PostMapping
-    public ResponseEntity<ApiResponseTemplate<Long>> createPost(@RequestBody PostRequestDto requestDto,
-                                           @AuthenticationPrincipal Member member) {
-        Long postId = postService.createPost(requestDto, member);
-        return ApiResponseTemplate.success(SuccessCode.RESOURCE_CREATED,postId);
-    }
 
     // 게시물 삭제
     @DeleteMapping("/{postId}")
@@ -74,7 +67,7 @@ public class PostController {
     // ===== 단계별 게시물 생성 플로우 =====
 
     // 1. 사진 촬영 → 임시 게시물 생성 + 미리보기
-    @PostMapping("/capture")
+    @PostMapping("/actions/capture")
     public ResponseEntity<ApiResponseTemplate<CaptureResponse>> capturePhoto(
             @RequestParam("image") MultipartFile image,
             @RequestParam("lat") Double lat,
@@ -133,4 +126,14 @@ public class PostController {
         Long publishedPostId = postService.publishDraft(draftId, member);
         return ApiResponseTemplate.success(SuccessCode.RESOURCE_CREATED, publishedPostId);
     }
+
+
+    //게시물 생성 (단계별 게시물 생성만 존재해서 주석처리함)
+    //@PostMapping
+    //public ResponseEntity<ApiResponseTemplate<Long>> createPost(@RequestBody PostRequestDto requestDto,
+    //                                                          @AuthenticationPrincipal Member member) {
+    //    Long postId = postService.createPost(requestDto, member);
+    //return ApiResponseTemplate.success(SuccessCode.RESOURCE_CREATED,postId);
+    //}
+
 }
