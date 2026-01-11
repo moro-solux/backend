@@ -41,6 +41,10 @@ public class MissionPostService {
     private final FollowRepository followRepository;
     private final ColorAnalysisService colorAnalysisService;
 
+    // 미션 공유
+    @Value("${app.base-url}")
+    private String baseUrl;
+
     // < 미션 주제 조회 >
     @Transactional(readOnly = true)
     public MissionSubjectResponse getSubject(){
@@ -184,10 +188,6 @@ public class MissionPostService {
         missionPostRepository.delete(post);
     }
 
-    // 미션 공유
-    @Value("${app.base-url}")
-    private String baseUrl;
-
     @Transactional
     public MissionShareResponse generateShareUrl(Long misPostId){
 
@@ -195,6 +195,7 @@ public class MissionPostService {
         MissionPost post = missionPostRepository.findById(misPostId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.RESOURCE_NOT_FOUND, "미션 게시물을 찾을 수 없습니다."));
 
+        System.out.println("Current Base URL: " + baseUrl);
         // 공유 URL 생성
         String shareUrl = String.format("%s/share/missions/%d", baseUrl, misPostId);
 

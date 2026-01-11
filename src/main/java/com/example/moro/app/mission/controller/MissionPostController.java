@@ -121,9 +121,9 @@ public class MissionPostController {
     }
 
     // < 미션 게시물 공유 >
-    @GetMapping("posts/share/{misPostId}")
+    @GetMapping("posts/{misPostId}/share")
     public ResponseEntity<ApiResponseTemplate<MissionShareResponse>> getSharePosts(
-            Long mistPostId
+            @PathVariable("misPostId") Long mistPostId
     ){
         MissionShareResponse response = missionPostService.generateShareUrl(mistPostId);
         return ApiResponseTemplate.success(SuccessCode.RESOURCE_RETRIEVED, response);
