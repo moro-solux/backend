@@ -119,4 +119,13 @@ public class MissionPostController {
         missionCommentService.deleteMisComments(member.getEmail(), misCommentId);
         return ApiResponseTemplate.success(SuccessCode.RESOURCE_DELETED, "댓글이 성공적으로 삭제되었습니다.");
     }
+
+    // < 미션 게시물 공유 >
+    @GetMapping("posts/share/{misPostId}")
+    public ResponseEntity<ApiResponseTemplate<MissionShareResponse>> getSharePosts(
+            Long mistPostId
+    ){
+        MissionShareResponse response = missionPostService.generateShareUrl(mistPostId);
+        return ApiResponseTemplate.success(SuccessCode.RESOURCE_RETRIEVED, response);
+    }
 }
