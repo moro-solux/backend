@@ -134,7 +134,7 @@ public class MissionPostService {
     // 미션 게시글 조회(전체)
     @Transactional(readOnly = true)
     public List<MissionPostResponse> getAllPosts(){
-        return missionPostRepository.findAllByOrderByRandom()
+        return missionPostRepository.findAllPublicPostOrderByRandom()//findAllByOrderByRandom()
                 .stream()
                 .map(MissionPostResponse::from)
                 .toList();
