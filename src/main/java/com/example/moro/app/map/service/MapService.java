@@ -93,6 +93,8 @@ public class MapService {
                 .createdAt(formatCreatedAt(post.getCreatedAt()))
                 .imageUrl(post.getImageUrl())
                 .placeName(post.getAddress())
+                .addressKo(post.getDetailAddressKo())
+                .addressEn(post.getDetailAddressEn())
                 .hexCode1(hexCodes.get(0))
                 .hexCode2(hexCodes.get(1))
                 .hexCode3(hexCodes.get(2))
@@ -102,7 +104,7 @@ public class MapService {
 
     private String formatCreatedAt(LocalDateTime createdAt) {
         DateTimeFormatter formatter =
-                DateTimeFormatter.ofPattern("yy.MM.dd.E", Locale.KOREAN);
+                DateTimeFormatter.ofPattern("yy.MM.dd.E", Locale.ENGLISH);
         return createdAt.format(formatter);
     }
 
