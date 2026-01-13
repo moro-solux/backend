@@ -18,7 +18,7 @@ public class PostResponseDto {
     private int commentCount; //댓글 개수
     private Double lat; //위도
     private Double lng; //경도
-    private String address; //주소 정보
+    private String placeName; //주소 정보
     private List<ColorInfo> colors; //게시물 색상 정보 (컬러id, hexcode, 비율)
 
     // 색상 정보를 담는 내부 클래스
@@ -44,7 +44,7 @@ public class PostResponseDto {
         this.shareCount = post.getShareCount();
         this.lat = post.getLat();
         this.lng = post.getLng();
-        this.address = post.getAddress();  // 주소 정보 추가
+        this.placeName = post.getAddress();  // 주소 정보 추가
         this.likecount = String.valueOf(likeCount);
         this.commentCount = commentCount;
         this.colors = colors;
