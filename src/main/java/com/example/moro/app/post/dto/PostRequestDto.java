@@ -10,4 +10,5 @@ public class PostRequestDto {
     private String imageUrl;
     private Double lat;
     private Double lng;
+    private String placeName;
 }
