@@ -35,8 +35,11 @@ public class FollowService {
         if(followerId.equals(followingId)){
             throw new BusinessException(ErrorCode.BAD_REQUEST, "자기자신은 팔로우 할 수 없습니다.");
         }
-        Member follower = memberRepository.findById(followerId).orElseThrow();
-        Member following = memberRepository.findById(followingId).orElseThrow();
+        Member follower = memberRepository.findById(followerId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.RESOURCE_NOT_FOUND, "팔로우 요청자(follower)를 찾을 수 없습니다."));
+        Member following = memberRepository.findById(followingId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.RESOURCE_NOT_FOUND, "팔로우 대상 사용자(following)를 찾을 수 없습니다."));
+
         if (followRepository.existsByFollowerAndFollowing(follower, following)) {
             throw new BusinessException(ErrorCode. ALREADY_EXIST_SUBJECT_EXCEPTION, "이미 팔로우 중입니다.");
         }
@@ -91,10 +94,7 @@ public class FollowService {
         follow.accept();
         followRepository.save(follow);
 
-        return new FollowResponseDto(
-                follow.getFollowId(),
-                follow.getStatus()
-        );
+        return new FollowResponseDto(follow.getFollowId(), follow.getStatus());
     }
 
     public void rejectByFollowing(Long followId, Long myUserId) {
