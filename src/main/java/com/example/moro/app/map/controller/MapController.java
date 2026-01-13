@@ -2,6 +2,7 @@ package com.example.moro.app.map.controller;
 
 import com.example.moro.app.map.dto.MapPostDetailResponse;
 import com.example.moro.app.map.dto.MapPostSummary;
+import com.example.moro.app.map.dto.MapSearchResponse;
 import com.example.moro.app.map.service.MapService;
 import com.example.moro.app.member.entity.Member;
 import com.example.moro.global.common.ApiResponseTemplate;
@@ -38,13 +39,13 @@ public class MapController {
 
     @Operation(summary = "지도 검색 조회", description = "특정 키워드로 장소나 게시물을 검색합니다.")
     @GetMapping("/search")
-    public ResponseEntity<ApiResponseTemplate<List<MapPostSummary>>> searchMap(@RequestParam String keyword, @RequestParam double radius)
+    public ResponseEntity<ApiResponseTemplate<MapSearchResponse>> searchMap(@RequestParam String keyword, @RequestParam double radius)
     {
         Member me = securityUtil.getCurrentMember();
 
-        return ApiResponseTemplate.success(
-                SuccessCode.OPERATION_SUCCESSFUL, mapService.searchPostsByKeyword(me.getId(), keyword, radius)
-        );
+        MapSearchResponse result = mapService.searchPostsByKeyword(me.getId(), keyword, radius);
+
+        return ApiResponseTemplate.success(SuccessCode.OPERATION_SUCCESSFUL, result);
     }
 
     @Operation(summary = "지도 게시물 상세 조회", description = "지도 위의 마커(게시물)를 클릭했을 때 상세 정보를 조회합니다.")

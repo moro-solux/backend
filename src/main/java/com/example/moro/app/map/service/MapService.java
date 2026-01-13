@@ -1,9 +1,6 @@
 package com.example.moro.app.map.service;
 
-import com.example.moro.app.map.dto.BoundingBox;
-import com.example.moro.app.map.dto.GetLatLngRes;
-import com.example.moro.app.map.dto.MapPostDetailResponse;
-import com.example.moro.app.map.dto.MapPostSummary;
+import com.example.moro.app.map.dto.*;
 import com.example.moro.app.map.repository.MapRepository;
 import com.example.moro.app.map.util.GeoUtils;
 import com.example.moro.app.post.entity.Post;
@@ -57,18 +54,21 @@ public class MapService {
 
 
 
-    public List<MapPostSummary> searchPostsByKeyword(Long memberId, String keyword, double radiusKm) {
+    public MapSearchResponse searchPostsByKeyword(Long memberId, String keyword, double radiusKm) {
 
         if (keyword == null || keyword.isBlank()) {
             throw new BusinessException(ErrorCode.BAD_REQUEST, "검색어는 필수입니다.");
         }
 
-        GetLatLngRes latLng = geocodingService.getLatLngByAddress(keyword);
+        GetLatLngResponse latLng = geocodingService.getLatLngByAddress(keyword);
 
         if (latLng == null) {
             throw new BusinessException(ErrorCode.RESOURCE_NOT_FOUND, "해당 주소를 찾을 수 없습니다.");
         }
-        return getPostsByLocation(memberId, latLng.getLatitude(), latLng.getLongitude(), radiusKm);
+
+        List<MapPostSummary> posts = getPostsByLocation(memberId, latLng.getLatitude(), latLng.getLongitude(), radiusKm);
+
+        return new MapSearchResponse(latLng.getLatitude(), latLng.getLongitude(), posts);
     }
 
     public MapPostDetailResponse getPostDetail(Long memberId, Long postId) {
@@ -92,7 +92,9 @@ public class MapService {
                 .postId(post.getId())
                 .createdAt(formatCreatedAt(post.getCreatedAt()))
                 .imageUrl(post.getImageUrl())
-                .address(post.getAddress())
+                .placeName(post.getAddress())
+                .addressKo(post.getDetailAddressKo())
+                .addressEn(post.getDetailAddressEn())
                 .hexCode1(hexCodes.get(0))
                 .hexCode2(hexCodes.get(1))
                 .hexCode3(hexCodes.get(2))
@@ -102,7 +104,7 @@ public class MapService {
 
     private String formatCreatedAt(LocalDateTime createdAt) {
         DateTimeFormatter formatter =
-                DateTimeFormatter.ofPattern("yy.MM.dd.E", Locale.KOREAN);
+                DateTimeFormatter.ofPattern("yy.MM.dd.E", Locale.ENGLISH);
         return createdAt.format(formatter);
     }
 
