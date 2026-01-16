@@ -84,7 +84,7 @@ public class PostService {
         // PostColor 엔티티들 저장
         for (ColorAnalysisResult result : colorResults) {
             ColorMap colorMap = colorMapRepository.findById((long) result.getColorId())
-                    .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 컬러id:" + result.getColorId()));
+                    .orElseThrow(() -> new BusinessException(ErrorCode.RESOURCE_NOT_FOUND,"존재하지 않는 컬러id:" + result.getColorId()));
 
             PostColor postColor = PostColor.builder()
                     .post(savedPost)
@@ -101,9 +101,9 @@ public class PostService {
     //2. 게시물 삭제
     public void deletePost(Long postId, Member member) {
         Post post = postRepository.findById(postId)
-                .orElseThrow(() -> new IllegalArgumentException("해당 게시물 존재하지 않음.id=" + postId));
+                .orElseThrow(() -> new BusinessException(ErrorCode.RESOURCE_NOT_FOUND,"해당 게시물 존재하지 않음.id=" + postId));
         if (!post.getMember().getId().equals(member.getId())) {
-            throw new IllegalStateException("해당 게시물을 삭제할 권한이 없습니다.");
+            throw new BusinessException(ErrorCode.ACCESS_DENIED_EXCEPTION,"해당 게시물을 삭제할 권한이 없습니다.");
         }
         postRepository.delete(post);
     }
@@ -113,7 +113,7 @@ public class PostService {
     public PostResponseDto getPost(Long postId) {
         //게시물 존재 확인
         Post post = postRepository.findById(postId)
-                .orElseThrow(()-> new IllegalArgumentException("게시물 없음"));
+                .orElseThrow(()-> new BusinessException(ErrorCode.RESOURCE_NOT_FOUND,"게시물 없음"));
 
         //좋아요 개수 조회
         int likeCount = likeRepository.countByPost(post);
@@ -209,7 +209,7 @@ public class PostService {
         // PostColor 엔티티들 생성
         for (ColorAnalysisResult result : colorResults) {
             ColorMap colorMap = colorMapRepository.findById((long) result.getColorId())
-                    .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 컬러id:" + result.getColorId()));
+                    .orElseThrow(() -> new BusinessException(ErrorCode.RESOURCE_NOT_FOUND,"존재하지 않는 컬러id:" + result.getColorId()));
 
             PostColor postColor = PostColor.builder()
                     .post(savedDraft)
@@ -224,7 +224,7 @@ public class PostService {
         List<PostResponseDto.ColorInfo> colorInfos = colorResults.stream()
                 .map(result -> {
                     ColorMap colorMap = colorMapRepository.findById((long) result.getColorId())
-                            .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 컬러id:" + result.getColorId()));
+                            .orElseThrow(() -> new BusinessException(ErrorCode.RESOURCE_NOT_FOUND,"존재하지 않는 컬러id:" + result.getColorId()));
                     return new PostResponseDto.ColorInfo(
                             result.getColorId(),
                             colorMap.getHexCode(), // 실제 hexCode 사용
@@ -252,7 +252,7 @@ public class PostService {
         Post draft = postRepository.findById(draftId)
                 .filter(post -> post.getMember().getId().equals(member.getId()))
                 .filter(post -> post.isDraft())
-                .orElseThrow(() -> new IllegalArgumentException("수정할 수 없는 임시 게시물입니다."));
+                .orElseThrow(() -> new BusinessException(ErrorCode.BAD_REQUEST,"수정할 수 없는 임시 게시물입니다."));
 
         draft.setLat(request.getLat());
         draft.setLng(request.getLng());
@@ -266,14 +266,14 @@ public class PostService {
         Post draft = postRepository.findById(draftId)
                 .filter(post -> post.getMember().getId().equals(member.getId()))
                 .filter(post -> post.isDraft())
-                .orElseThrow(() -> new IllegalArgumentException("수정할 수 없는 임시 게시물입니다."));
+                .orElseThrow(() -> new BusinessException(ErrorCode.BAD_REQUEST,"수정할 수 없는 임시 게시물입니다."));
 
         // 선택한 색상이 실제로 해당 게시물의 색상인지 검증
         boolean isValidColor = postColorRepository.findAllByPost(draft).stream()
                 .anyMatch(pc -> pc.getColormap().getColorId().equals(Long.valueOf(mainColorId)));
 
         if (!isValidColor) {
-            throw new IllegalArgumentException("유효하지 않은 색상 선택입니다.");
+            throw new BusinessException(ErrorCode.BAD_REQUEST,"유효하지 않은 색상 선택입니다.");
         }
 
         draft.setMainColorId(mainColorId);
@@ -286,7 +286,7 @@ public class PostService {
         Post draft = postRepository.findById(draftId)
                 .filter(post -> post.getMember().getId().equals(member.getId()))
                 .filter(post -> post.isDraft())
-                .orElseThrow(() -> new IllegalArgumentException("게시물을 찾을 수 없습니다."));
+                .orElseThrow(() -> new BusinessException(ErrorCode.RESOURCE_NOT_FOUND,"게시물을 찾을 수 없습니다."));
 
         // DRAFT → PUBLISHED 상태 변경
         draft.publish();

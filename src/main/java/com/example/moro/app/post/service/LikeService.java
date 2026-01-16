@@ -7,6 +7,8 @@ import com.example.moro.app.post.entity.Like;
 import com.example.moro.app.post.entity.Post;
 import com.example.moro.app.post.repository.LikeRepository;
 import com.example.moro.app.post.repository.PostRepository;
+import com.example.moro.global.common.ErrorCode;
+import com.example.moro.global.exception.BusinessException;
 import jakarta.transaction.Transactional;
 
 import lombok.RequiredArgsConstructor;
@@ -25,7 +27,7 @@ public class LikeService {
     //좋아요 토글기능
     public void toggleLike(Long postId, Member member) {
         Post post = postRepository.findById(postId)
-                .orElseThrow(() -> new IllegalArgumentException("게시물 없음"));
+                .orElseThrow(() -> new BusinessException(ErrorCode.RESOURCE_NOT_FOUND,"게시물 없음"));
 
         // 이미 좋아요를 눌렀는지 확인
         Optional<Like> postLike = likeRepository.findByPostAndMember(post, member);

@@ -70,8 +70,8 @@ public class PostController {
     @PostMapping("/actions/capture")
     public ResponseEntity<ApiResponseTemplate<CaptureResponse>> capturePhoto(
             @RequestParam("image") MultipartFile image,
-            @RequestParam("lat") Double lat,
-            @RequestParam("lng") Double lng,
+            @RequestParam(value = "lat", required =false) Double lat,
+            @RequestParam(value = "lng", required = false) Double lng,
             @AuthenticationPrincipal Member member) throws IOException {
 
         // S3에 이미지 업로드

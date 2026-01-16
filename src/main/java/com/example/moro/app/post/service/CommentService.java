@@ -7,6 +7,8 @@ import com.example.moro.app.post.entity.Comment;
 import com.example.moro.app.post.entity.Post;
 import com.example.moro.app.post.repository.CommentRepository;
 import com.example.moro.app.post.repository.PostRepository;
+import com.example.moro.global.common.ErrorCode;
+import com.example.moro.global.exception.BusinessException;
 import io.swagger.v3.oas.annotations.servers.Server;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -29,7 +31,7 @@ public class CommentService {
     //댓글 생성
     public Long createComment(Long postId, String content, Member member) {
         Post post = postRepository.findById(postId)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 게시물. id=" + postId));
+                .orElseThrow(() -> new BusinessException(ErrorCode.RESOURCE_NOT_FOUND,"존재하지 않는 게시물. id=" + postId));
 
         Comment comment = Comment.builder()
                 .post(post)
@@ -64,7 +66,7 @@ public class CommentService {
     @Transactional
     public List<CommentResponseDto> getComments(Long postId) {
         Post post = postRepository.findById(postId)
-                .orElseThrow(()-> new IllegalArgumentException("게시물 없음"));
+                .orElseThrow(()-> new BusinessException(ErrorCode.RESOURCE_NOT_FOUND,"게시물 없음"));
 
         //리파지토리에서 댓글리스트를 가져와서 dto 리스트로 변환
         return commentRepository.findByPostOrderByCreatedAtAsc(post).stream()
