@@ -175,7 +175,7 @@ public class ColorMapService {
     /*
     사용자 특정 컬러맵 통계 업데이트 <내부 로직>
      */
-    private void updateUserColorStatus(Member member, Long colorId, int delta){
+    public void updateUserColorStatus(Member member, Long colorId, int delta){
         UserColorMap ucm = userColorMapRepository.findByMemberAndColorMapColorId(member,colorId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.RESOURCE_NOT_FOUND, "유저 컬러맵을 찾을 수 없습니다."));
 

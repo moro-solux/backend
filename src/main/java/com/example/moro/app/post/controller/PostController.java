@@ -127,6 +127,20 @@ public class PostController {
         return ApiResponseTemplate.success(SuccessCode.RESOURCE_CREATED, publishedPostId);
     }
 
+    /*
+    //게시물 수정 (메인 색상 변경)
+    @PatchMapping("/{postId}/main-color")
+    public ResponseEntity<ApiResponseTemplate<Void>> updatePublishedMainColor(
+            @AuthenticationPrincipal Member member,
+            @PathVariable Long postId,
+            @RequestBody MainColorRequest request) {
+
+        postService.updatePublishedMainColor(postId, request.getSelectedColorId(), member);
+
+        return ApiResponseTemplate.success(SuccessCode.RESOURCE_UPDATED,null);
+    }
+     */
+
 
     //게시물 생성 (단계별 게시물 생성만 존재해서 주석처리함)
     //@PostMapping

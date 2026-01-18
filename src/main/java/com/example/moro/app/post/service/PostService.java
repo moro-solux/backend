@@ -1,9 +1,11 @@
 package com.example.moro.app.post.service;
 
 import com.example.moro.app.colormap.entity.ColorMap;
+
 import com.example.moro.app.colormap.entity.UserColorMap;
 import com.example.moro.app.colormap.repository.ColorMapRepository;
 import com.example.moro.app.colormap.repository.UserColorMapRepository;
+import com.example.moro.app.colormap.service.ColorMapService;
 import com.example.moro.app.member.entity.Member;
 import com.example.moro.app.s3.S3Service;
 import com.example.moro.app.notification.service.NotificationService;
@@ -49,6 +51,7 @@ public class PostService {
     private final ColorMapRepository colorMapRepository;
     private final UserColorMapRepository userColorMapRepository;
     private final S3Service s3Service;
+    private final ColorMapService colorMapService;
 
     private final NotificationService notificationService;
 
@@ -102,7 +105,8 @@ public class PostService {
         if (!post.getMember().getId().equals(member.getId())) {
             throw new BusinessException(ErrorCode.ACCESS_DENIED_EXCEPTION,"해당 게시물을 삭제할 권한이 없습니다.");
         }
-        postRepository.delete(post);
+
+        colorMapService.deletePost(member.getEmail(), postId);
     }
 
     //3. 게시물 조회
@@ -289,6 +293,9 @@ public class PostService {
         draft.publish();
         Post publishedPost = postRepository.save(draft);
 
+        // 컬러맵에 해금, 색상별 게시물 수 업데이트
+        colorMapService.updateUserColorStatus(member,publishedPost.getMainColorId().longValue(),1);
+
         /*알림: 최종 게시물의 mainColorId가 UserColorMap에서 아직 unlocked 되지 않은 상태인지 확인하여 해금 알림 */
         UserColorMap userColorMap = userColorMapRepository
                 .findByMemberAndColorMapColorIdAndUnlockedFalse(member, publishedPost.getMainColorId())
@@ -318,10 +325,45 @@ public class PostService {
                 .collect(Collectors.toList());
     }
 
+    /*
+    //------------------------------------------------------------------------
+    // 게시물 수정: Published 게시물의 대표 색상 변경 (홈피드에서)
+    @Transactional
+    public void updatePublishedMainColor(Long postId, Integer mainColorId, Member member) {
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.RESOURCE_NOT_FOUND, "게시물을 찾을 수 없습니다."));
+
+        // 본인 게시물인지 확인
+        if (!post.getMember().getId().equals(member.getId())) {
+            throw new BusinessException(ErrorCode.ACCESS_DENIED_EXCEPTION, "수정 권한이 없습니다.");
+        }
+
+        // Published 상태인지 확인
+        if (!post.isPublished()) {
+            throw new BusinessException(ErrorCode.BAD_REQUEST, "게시물이 공개된 상태에서만 색상을 변경할 수 있습니다.");
+        }
+
+        // 선택한 색상이 실제로 해당 게시물의 4가지 색상 중 하나인지 검증
+        boolean isValidColor = postColorRepository.findAllByPost(post).stream()
+                .anyMatch(pc -> pc.getColormap().getColorId().equals(Long.valueOf(mainColorId)));
+
+        if (!isValidColor) {
+            throw new BusinessException(ErrorCode.BAD_REQUEST, "유효하지 않은 색상 선택입니다.");
+        }
+
+        // ColorMapService를 통해 색상 통계 업데이트 (기존 색상 -1, 새 색상 +1)
+        colorMapService.updatePostMainColor(member.getEmail(), postId, mainColorId.longValue());
+    }
+
+     */
+
     // 사용자 프로필 이미지 조회 (임시: 대표 색상 사용)
     private String getUserProfileImage(Member member) {
         // TODO: 나중에 Member 엔티티에 profileImageUrl 필드가 추가되면 수정
         // 현재는 임시로 사용자의 대표 색상을 프로필 이미지로 사용
         return member.getUserColorHex();
     }
+
+
+
 }
