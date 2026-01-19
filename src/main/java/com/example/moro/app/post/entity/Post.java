@@ -47,6 +47,14 @@ public class Post {
     @Setter
     private String address;
 
+    @Column
+    @Setter
+    private String detailAddressKo;
+
+    @Column
+    @Setter
+    private String detailAddressEn;
+
     //공유 횟수를 저장할 필드가 필요하여 추가함.
     @Column
     @Setter

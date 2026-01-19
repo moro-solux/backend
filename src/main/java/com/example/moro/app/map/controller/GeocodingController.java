@@ -1,6 +1,6 @@
 package com.example.moro.app.map.controller;
 
-import com.example.moro.app.map.dto.GetLatLngRes;
+import com.example.moro.app.map.dto.GetLatLngResponse;
 import com.example.moro.app.map.service.GeocodingService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -22,10 +22,10 @@ public class GeocodingController {
     private final GeocodingService geocodingService;
 
     @GetMapping
-    public ResponseEntity<GetLatLngRes> getLatLng(
+    public ResponseEntity<GetLatLngResponse> getLatLng(
             @RequestParam String address
     ) {
-        GetLatLngRes result = geocodingService.getLatLngByAddress(address);
+        GetLatLngResponse result = geocodingService.getLatLngByAddress(address);
         return ResponseEntity.ok(result);
     }
 

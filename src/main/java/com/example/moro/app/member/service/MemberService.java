@@ -3,6 +3,7 @@ package com.example.moro.app.member.service;
 import com.example.moro.app.colormap.entity.ColorMap;
 import com.example.moro.app.colormap.repository.ColorMapRepository;
 import com.example.moro.app.colormap.repository.UserColorMapRepository;
+import com.example.moro.app.follow.entity.Follow;
 import com.example.moro.app.follow.entity.FollowStatus;
 import com.example.moro.app.follow.repository.FollowRepository;
 import com.example.moro.app.member.dto.*;
@@ -114,6 +115,12 @@ public class MemberService {
                     .orElse(false);
         }
 
+        String followingStatus = isCurrentUser ? "NONE" :
+                                followRepository
+                                .findByFollowerIdAndFollowingId(currentUserId, targetUserId)
+                                .map(f -> f.getStatus().name())
+                                .orElse("NONE");
+
         int colorCount = userColorMapRepository.countByMemberAndUnlockedTrue(member);
 
         int followerCount = followRepository.countByFollowingIdAndStatus(member.getId(), FollowStatus.ACCEPTED);
@@ -137,6 +144,7 @@ public class MemberService {
                 .userId(member.getId())
                 .userName(member.getUserName())
                 .userColorHex(userColorHex)
+                .followingStatus(followingStatus)
                 .colorCount(colorCount)
                 .followerCount(followerCount)
                 .followingCount(followingCount)

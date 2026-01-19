@@ -2,6 +2,7 @@ package com.example.moro.app.colormap.controller;
 
 import com.example.moro.app.colormap.dto.*;
 import com.example.moro.app.colormap.service.ColorMapService;
+import com.example.moro.app.member.entity.Member;
 import com.example.moro.app.post.repository.PostRepository;
 import com.example.moro.global.common.ApiResponseTemplate;
 import com.example.moro.global.common.SuccessCode;
@@ -22,64 +23,64 @@ public class ColorMapController {
     // 1. 컬러맵  조회 (기본)
     @GetMapping("")
     public ResponseEntity<ApiResponseTemplate<List<ThemeGroupResponse>>> getMyColorMaps(
-            @AuthenticationPrincipal String email
-    ){
+            @AuthenticationPrincipal Member member
+            ){
         // 현재 로그인한 사용자 ID
-        List<ThemeGroupResponse> response = colorMapService.getUserColorMaps(email);
+        List<ThemeGroupResponse> response = colorMapService.getUserColorMaps(member.getEmail());
         return ApiResponseTemplate.success(SuccessCode.RESOURCE_RETRIEVED, response);
     }
 
     // 2. 테마별 컬러맵 조회
     @GetMapping("/themes/{themeName}")
     public ResponseEntity<ApiResponseTemplate<ThemeGroupResponse>> getMyColorMapsByTheme(
-            @AuthenticationPrincipal String email,
+            @AuthenticationPrincipal Member member,
             @PathVariable String themeName
     ){
         // 특정 테마 정보만 조회
-        ThemeGroupResponse response = colorMapService.getUserColorMapsByTheme(email, themeName);
+        ThemeGroupResponse response = colorMapService.getUserColorMapsByTheme(member.getEmail(), themeName);
         return ApiResponseTemplate.success(SuccessCode.RESOURCE_RETRIEVED, response);
     }
 
     // 2. 특정 색상의 사진들 조회
     @GetMapping("/colors/{colorId}/posts")
     public ResponseEntity<ApiResponseTemplate<PageResponse<ColorPostResponse>>> getPostsByColor(
-            @AuthenticationPrincipal String email,
+            @AuthenticationPrincipal Member member,
             @PathVariable Integer colorId,
             Pageable pageable
     ){
-        PageResponse<ColorPostResponse> response = colorMapService.getPostsByColor(email, colorId, pageable);
+        PageResponse<ColorPostResponse> response = colorMapService.getPostsByColor(member.getEmail(), colorId, pageable);
         return ApiResponseTemplate.success(SuccessCode.RESOURCE_RETRIEVED, response);
     }
 
     // 특정 색상의 게시물 자세히 보기
     @GetMapping("/colors/{colorId}/posts/{postId}")
     public ResponseEntity<ApiResponseTemplate<PostDetailResponse>> getPostDetail(
-            @AuthenticationPrincipal String email,
+            @AuthenticationPrincipal Member member,
             @PathVariable Integer colorId,
             @PathVariable Long postId
     ){
-        PostDetailResponse response = colorMapService.getPostDetail(email,postId);
+        PostDetailResponse response = colorMapService.getPostDetail(member.getEmail(),postId);
         return ApiResponseTemplate.success(SuccessCode.RESOURCE_RETRIEVED, response);
     }
 
     // 3. 게시물 대표색 변경
     @PatchMapping("/posts/{postId}/mainColor")
     public ResponseEntity<ApiResponseTemplate<UpdateMainColorResponse>> updatePostMainColor(
-            @AuthenticationPrincipal String email,
+            @AuthenticationPrincipal Member member,
             @PathVariable Long postId,
             @RequestBody UpdateMainColorRequest request
     ){
-        UpdateMainColorResponse response = colorMapService.updatePostMainColor(email, postId, request.newColorId());
+        UpdateMainColorResponse response = colorMapService.updatePostMainColor(member.getEmail(), postId, request.newColorId());
         return ApiResponseTemplate.success(SuccessCode.RESOURCE_UPDATED, response);
     }
 
     // 4. 게시물 삭제
     @DeleteMapping("/posts/{postId}")
     public ResponseEntity<?> deletePost(
-            @AuthenticationPrincipal String email,
+            @AuthenticationPrincipal Member member,
             @PathVariable Long postId
     ){
-        colorMapService.deletePost(email, postId);
+        colorMapService.deletePost(member.getEmail(), postId);
         return ApiResponseTemplate.success(SuccessCode.RESOURCE_DELETED, "해당 게시물이 성공적으로 삭제되었습니다.");
     }
 }

@@ -1,6 +1,6 @@
 package com.example.moro.app.map.service;
 
-import com.example.moro.app.map.dto.GetLatLngRes;
+import com.example.moro.app.map.dto.GetLatLngResponse;
 import com.example.moro.global.common.ErrorCode;
 import com.example.moro.global.exception.BusinessException;
 import com.google.maps.GeoApiContext;
@@ -20,7 +20,7 @@ public class GeocodingService {
 
     private final GeoApiContext geoApiContext;
 
-    public GetLatLngRes getLatLngByAddress(String address) {
+    public GetLatLngResponse getLatLngByAddress(String address) {
         try {
             String query = "대한민국 " + address;
 
@@ -35,7 +35,7 @@ public class GeocodingService {
             double latitude = results[0].geometry.location.lat;
             double longitude = results[0].geometry.location.lng;
 
-            return new GetLatLngRes(latitude, longitude);
+            return new GetLatLngResponse(latitude, longitude);
 
         } catch (BusinessException e) {
             logger.error("Geocoding 실패: address={}", address, e);

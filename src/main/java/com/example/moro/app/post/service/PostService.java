@@ -6,6 +6,8 @@ import com.example.moro.app.colormap.entity.UserColorMap;
 import com.example.moro.app.colormap.repository.ColorMapRepository;
 import com.example.moro.app.colormap.repository.UserColorMapRepository;
 import com.example.moro.app.colormap.service.ColorMapService;
+import com.example.moro.app.map.dto.GetAddressResponse;
+import com.example.moro.app.map.service.ReverseGeocodingService;
 import com.example.moro.app.member.entity.Member;
 import com.example.moro.app.s3.S3Service;
 import com.example.moro.app.notification.service.NotificationService;
@@ -54,6 +56,7 @@ public class PostService {
     private final ColorMapService colorMapService;
 
     private final NotificationService notificationService;
+    private final ReverseGeocodingService reverseGeocodingService;
 
     @Value("${app.base-url}")
     private String baseUrl;
@@ -295,6 +298,21 @@ public class PostService {
 
         // 컬러맵에 해금, 색상별 게시물 수 업데이트
         colorMapService.updateUserColorStatus(member,publishedPost.getMainColorId().longValue(),1);
+        /* map: reverse geocoding api 서비스를 이용한 상세 주소 저장 */
+        try {
+            if (publishedPost.getLat() != null && publishedPost.getLng() != null) {
+                GetAddressResponse addressRes = reverseGeocodingService.getAddressByLatLng(
+                        publishedPost.getLat(), publishedPost.getLng()
+                );
+
+                publishedPost.setDetailAddressKo(addressRes.getAddressKo());
+                publishedPost.setDetailAddressEn(addressRes.getAddressEn());
+
+                postRepository.save(publishedPost);
+            }
+        } catch (Exception e) {
+
+        }
 
         /*알림: 최종 게시물의 mainColorId가 UserColorMap에서 아직 unlocked 되지 않은 상태인지 확인하여 해금 알림 */
         UserColorMap userColorMap = userColorMapRepository
@@ -308,7 +326,6 @@ public class PostService {
                 notificationService.notifyColorUnlocked(member.getId());
             }
         }
-        /* ---------------------------------------------------------------------------------------- */
 
         return publishedPost.getId();
     }
