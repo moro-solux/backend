@@ -1,6 +1,7 @@
 package com.example.moro.app.notification.service;
 
 
+import com.example.moro.app.follow.entity.FollowStatus;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
@@ -37,10 +38,11 @@ public class NotificationContentFactory {
         ));
     }
 
-    public String followed(Long actorId, String actorName) {
+    public String followed(Long actorId, String actorName, String followBackStatus) {
         return toJson(Map.of(
                 "actorId", actorId,
-                "actorName", actorName
+                "actorName", actorName,
+                "followBackStatus", followBackStatus
         ));
     }
 

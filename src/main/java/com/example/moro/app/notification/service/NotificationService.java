@@ -1,5 +1,11 @@
 package com.example.moro.app.notification.service;
 
+import com.example.moro.app.follow.entity.Follow;
+import com.example.moro.app.follow.entity.FollowStatus;
+import com.example.moro.app.follow.repository.FollowRepository;
+import com.example.moro.app.follow.service.FollowService;
+import com.example.moro.app.member.entity.Member;
+import com.example.moro.app.member.repository.MemberRepository;
 import com.example.moro.app.notification.dto.NotificationResponse;
 import com.example.moro.app.notification.entity.Notification;
 import com.example.moro.app.notification.entity.NotificationType;
@@ -12,10 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -24,6 +27,8 @@ public class NotificationService {
     private final NotificationRepository notificationRepository;
     private final SseEmitterService sseEmitterService;
     private final FcmService fcmService;
+    private final FollowRepository followRepository;
+    private final MemberRepository memberRepository;
     private final NotificationContentFactory notificationContentFactory;
     private final ObjectMapper objectMapper;
 
@@ -130,7 +135,19 @@ public class NotificationService {
     @Transactional
     public void notifyFollow(Long receiverId, Long actorId, String actorName) {
 
-        String content = notificationContentFactory.followed(actorId, actorName);
+        Optional<Follow> followOpt = followRepository.findByFollowerIdAndFollowingId(receiverId, actorId);
+
+        String followBackStatus;
+
+        if (followOpt.isEmpty()) {
+            followBackStatus = "NONE";
+        } else if (followOpt.get().getStatus() == FollowStatus.PENDING) {
+            followBackStatus = "PENDING";
+        } else {
+            followBackStatus = "ACCEPTED";
+        }
+
+        String content = notificationContentFactory.followed(actorId, actorName, followBackStatus);
 
         notifyInternal(receiverId, NotificationType.FOLLOWING, content);
     }
