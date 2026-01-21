@@ -38,10 +38,17 @@ public class NotificationService {
     public Map<String, List<NotificationResponse>> getMyNotificationsGrouped(Long memberId) {
 
         List<Notification> notifications = notificationRepository.findByReceiverIdOrderByCreatedAtDesc(memberId);
-        ObjectMapper om = new ObjectMapper();
 
         List<NotificationResponse> responseList = notifications.stream()
-                .map(n -> NotificationResponse.from(n, om))
+                .map(n -> {
+                    NotificationResponse response = NotificationResponse.from(n, objectMapper);
+
+                    if (n.getType() == NotificationType.FOLLOWING) {
+                        updateFollowStatus(memberId, response);
+                    }
+
+                    return response;
+                })
                 .toList();
 
         Map<String, List<NotificationResponse>> grouped = new LinkedHashMap<>();
@@ -62,6 +69,31 @@ public class NotificationService {
         }
 
         return grouped;
+    }
+
+    private void updateFollowStatus(Long currentMemberId, NotificationResponse response) {
+        try {
+            Map<String, Object> contentMap = (Map<String, Object>) response.getContent();
+
+            Object actorIdObj = contentMap.get("actorId");
+            Long actorId = ((Number) actorIdObj).longValue();
+
+            Optional<Follow> followOpt = followRepository.findByFollowerIdAndFollowingId(currentMemberId, actorId);
+
+            String currentStatus;
+            if (followOpt.isEmpty()) {
+                currentStatus = "NONE";
+            } else if (followOpt.get().getStatus() == FollowStatus.PENDING) {
+                currentStatus = "PENDING";
+            } else {
+                currentStatus = "ACCEPTED";
+            }
+
+            contentMap.put("followBackStatus", currentStatus);
+
+        } catch (Exception e) {
+            System.out.println("팔로우 상태 업데이트 실패: " + e.getMessage());
+        }
     }
 
     @Transactional
@@ -135,6 +167,16 @@ public class NotificationService {
     @Transactional
     public void notifyFollow(Long receiverId, Long actorId, String actorName) {
 
+        Optional<Notification> existingOpt = notificationRepository.findByReceiverIdAndTypeAndTargetId(
+                receiverId, NotificationType.FOLLOWING, actorId
+        );
+
+        if (existingOpt.isPresent()) {
+            Notification existing = existingOpt.get();
+            existing.setCreatedAt(LocalDateTime.now());
+            return;
+        }
+
         Optional<Follow> followOpt = followRepository.findByFollowerIdAndFollowingId(receiverId, actorId);
 
         String followBackStatus;
@@ -149,7 +191,7 @@ public class NotificationService {
 
         String content = notificationContentFactory.followed(actorId, actorName, followBackStatus);
 
-        notifyInternal(receiverId, NotificationType.FOLLOWING, content);
+        notifyInternal(receiverId, NotificationType.FOLLOWING, actorId, content);
     }
 
     @Transactional
