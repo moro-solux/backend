@@ -48,7 +48,7 @@ public class MapService {
                         box.getMaxLng()
                 )
                 .stream()
-                .map(post -> new MapPostSummary(post.getId()))
+                .map(post -> new MapPostSummary(post.getId(),post.getLat(),post.getLng()))
                 .toList();
     }
 
