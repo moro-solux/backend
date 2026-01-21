@@ -32,7 +32,7 @@ public class AuthService {
      */
     public LoginResponse login(String email, String name) {
         //[step1] 구글 정보 바탕으로 회원 확인 및 회원가입 처리
-        Member member = memberService.findOrCreateMember(email, name);
+        Member member = memberService.findOrCreateMember(email, name,true);
 
         // [step2] 회원 식별값(email)과 권한을 사용해서 jwt 토큰을 생성
         String token = jwtProvider.createToken(member.getEmail(), member.getRole().name());
@@ -76,12 +76,13 @@ public class AuthService {
     /**
      * 회원가입 완료 처리 (이름 설정 후 최종 회원가입)
      * @param email 사용자의 이메일
-     * @param userName 사용자가 설정한 이름
+     * @param userName
+     * @param locationConsent
      * @return LoginResponse
      */
-    public LoginResponse completeRegistration(String email, String userName) {
+    public LoginResponse completeRegistration(String email, String userName,Boolean locationConsent) {
         // 이메일과 이름으로 최종 회원가입
-        Member member = memberService.findOrCreateMember(email, userName);
+        Member member = memberService.findOrCreateMember(email, userName, locationConsent);
 
         userColorMapService.ensureUserColorMaps(member);
 

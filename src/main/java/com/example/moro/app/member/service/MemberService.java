@@ -49,7 +49,7 @@ public class MemberService {
      */
 
     @Transactional //데이터 저장이 발생하여 쓰기 권한 허용
-    public Member findOrCreateMember(String email, String name) {
+    public Member findOrCreateMember(String email, String name,Boolean locationConsent) {
         return memberRepository.findByEmail(email)
                 .orElseGet(() -> {
                     // 신규 회원일 경우 빌더 패턴을 통해 엔티티 생성 및 저장
@@ -57,10 +57,16 @@ public class MemberService {
                         Member.builder()
                                 .email(email)
                                 .userName(name)
+                                //위치측정 여부 추가
+                                .locationConsent(locationConsent)
                                 .role(Member.Role.USER) //기본 권한 user 부여
                                 .build()
                         );
                 });
+    }
+    @Transactional
+    public Member findOrCreateMember(String email, String name) {
+        return findOrCreateMember(email, name, true); // 기본값: true (동의)
     }
 
     /**
@@ -80,6 +86,15 @@ public class MemberService {
     public Member findByEmail(String email) {
         return memberRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("회원을 찾을 수 없습니다."));
+    }
+
+    /**
+     * 닉네임 중복 여부 확인
+     * @param userName 확인할 닉네임
+     * @return 중복되면 true, 사용 가능하면 false
+     */
+    public boolean existsByUserName(String userName) {
+        return memberRepository.existsByUserName(userName);
     }
 
     /**

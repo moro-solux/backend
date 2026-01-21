@@ -41,6 +41,19 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         // [Step 2] 로그인 처리 및 데이터 생성
         LoginResponse loginResponse = authService.handleOAuthLogin(email);
 
+// [Step 3] 프론트엔드로 리다이렉트 (수정된 부분)
+        String targetUrl = org.springframework.web.util.UriComponentsBuilder
+                .fromUriString("http://localhost:3000/oauth2/redirect") // 프론트엔드 주소
+                .queryParam("token", loginResponse.getToken())
+                .queryParam("needsNameSetup", loginResponse.isNeedsNameSetup())
+                .queryParam("tempEmail", loginResponse.getTempEmail())
+                .build()
+                .encode(java.nio.charset.StandardCharsets.UTF_8)
+                .toUriString();
+
+        getRedirectStrategy().sendRedirect(request, response, targetUrl);
+
+        /*
         // [Step 3] 컨벤션 적용
         var apiResponse = ApiResponseTemplate.success(SuccessCode.RESOURCE_RETRIEVED, loginResponse);
 
@@ -48,11 +61,7 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
         response.getWriter().write(objectMapper.writeValueAsString(apiResponse));
+
+         */
     }
 }
-
-
-
-
-
-

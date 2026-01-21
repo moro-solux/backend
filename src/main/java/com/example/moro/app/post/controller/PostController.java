@@ -78,8 +78,19 @@ public class PostController {
         String imageUrl = s3Service.uploadImage(image);
         System.out.println("Uploaded image URL to S3: " + imageUrl); // S3 이미지 URL 로그 추가
 
+        //사용자의 위치 동의 여부 확인 후 lat,lng 처리
+        Double finalLat = null;
+        Double finalLng = null;
+
+        if (member.getLocationConsent() != null && member.getLocationConsent()) {
+            // 동의한 경우: 프론트에서 보낸 값 사용
+            finalLat = lat;
+            finalLng = lng;
+        }
+        //동의하지 않은 경우 null 유지
+
         // 기존 로직에 S3 URL 적용
-        CaptureRequest request = new CaptureRequest(imageUrl, lat, lng);
+        CaptureRequest request = new CaptureRequest(imageUrl, finalLat, finalLng);
         CaptureResponse response = postService.createDraftFromCapture(request, member);
 
         return ApiResponseTemplate.success(SuccessCode.RESOURCE_CREATED, response);

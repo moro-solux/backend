@@ -37,6 +37,11 @@ public class Member {
     @Builder.Default
     private Boolean isPublic=true; // 공개/비공개 여부
 
+    @Setter
+    @Builder.Default
+    @Column(name = "location_consent")
+    private Boolean locationConsent=true;
+
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)

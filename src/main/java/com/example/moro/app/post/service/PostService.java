@@ -199,13 +199,22 @@ public class PostService {
         // 메인 컬러로 자동 선택
         ColorAnalysisResult mainColor = colorResults.get(0);
 
+        // 위치 동의 확인
+        Double lat = request.getLat();
+        Double lng = request.getLng();
+
+        if (member.getLocationConsent() == null || !member.getLocationConsent()) {
+            lat = null;
+            lng = null;
+        }
+
         // 임시 게시물 생성 (DRAFT 상태)
         Post draftPost = Post.builder()
                 .member(member)
                 .mainColorId(mainColor.getColorId())
                 .imageUrl(request.getImageUrl())
-                .lat(request.getLat())
-                .lng(request.getLng())
+                .lat(lat)
+                .lng(lng)
                 .build();
 
         Post savedDraft = postRepository.save(draftPost);

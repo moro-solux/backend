@@ -26,6 +26,14 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
     boolean existsByEmail(String email);
 
     /**
+     * 닉네임 중복 여부 확인
+     * @param userName 확인할 닉네임
+     * @return 존재하면 true, 없으면 false
+     */
+    boolean existsByUserName(String userName);
+
+
+    /**
      * 이메일을 통한 회원 정보 조회
      * @param email 조회할 회원의 이메일
      * @return 객체를 포함한 optional(로그인, 인증 프로세스에서 사용)
