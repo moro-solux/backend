@@ -7,4 +7,6 @@ import lombok.Getter;
 @AllArgsConstructor
 public class MapPostSummary {
     private Long postId;
+    private Double lat;
+    private Double lng;
 }
