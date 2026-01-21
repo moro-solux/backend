@@ -16,6 +16,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
@@ -37,14 +38,12 @@ public class NotificationController {
 
     @Operation(summary = "알림 스트림 연결 (SSE)", description = "서버로부터 실시간 알림을 받기 위해 SSE 연결을 요청합니다. (EventStream)")
     @GetMapping(value = "/stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
-    public SseEmitter subscribe(HttpServletResponse response) {
+    public SseEmitter subscribe(@AuthenticationPrincipal Member member, HttpServletResponse response) {
 
         response.setHeader("Cache-Control", "no-cache");
         response.setHeader("Connection", "keep-alive");
 
-
-        Member me = securityUtil.getCurrentMember();
-        return sseEmitterService.subscribe(me.getId());
+        return sseEmitterService.subscribe(member.getId());
     }
 
     @Operation(summary = "FCM 토큰 등록", description = "앱 로그인 시 발급받은 FCM 기기 토큰을 서버에 저장합니다.")

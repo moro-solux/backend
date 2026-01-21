@@ -55,7 +55,7 @@ public class FcmService {
     }
 
 
-    public void sendPush(Long userId, NotificationType type, String content) {
+    public void sendPush(Long userId, NotificationType type, String contentJson) {
 //         안드 연동시에 확인...
 //         1. userId → FCM 토큰 조회
 //         2. Firebase Admin SDK로 푸시 전송
@@ -71,10 +71,11 @@ public class FcmService {
             Message message = Message.builder()
                     .setToken(token)
                     .setNotification(Notification.builder()
-                            .setTitle("Moro에서 새 알림이 도착했습니다🍀")
-                            .setBody(content != null ? content : "")
+                            .setTitle("Moro")
+                            .setBody("Moro에서 새 알림이 도착했습니다. 확인해보세요!")
                             .build())
                     .putData("type", type.name())
+                    .putData("payload", contentJson)
                     .build();
 
             try {
@@ -85,7 +86,7 @@ public class FcmService {
             }
         }
 
-        System.out.println("💭FCM PUSH → user=" + userId + ", type=" + type + ", content=" + content);
+        System.out.println("💭FCM PUSH → user=" + userId + ", type=" + type + ", content=" + contentJson);
     }
 
 //    public void sendPushTest(Long userId, NotificationType type, String content) {
