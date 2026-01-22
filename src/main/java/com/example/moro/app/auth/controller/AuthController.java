@@ -33,7 +33,7 @@ public class AuthController {
             summary = "구글 로그인",
             description = "구글 OAuth2 로그인을 시작합니다. 이 엔드포인트는 구글 로그인 페이지로 리다이렉트됩니다."
     )
-    @GetMapping("/api/login/google")
+    @GetMapping("/login/google")
     public RedirectView loginGoogle() {
         // 구글 OAuth2 인증 페이지로 리다이렉트
         return new RedirectView("/oauth2/authorization/google");
@@ -54,7 +54,7 @@ public class AuthController {
             summary = "닉네임 중복 확인",
             description = "회원가입 시 닉네임의 중복 여부를 확인합니다."
     )
-    @GetMapping("/api/check-nickname")
+    @GetMapping("/check-nickname")
     public ResponseEntity<ApiResponseTemplate<NicknameCheckResponse>> checkNickname(
             @RequestParam String userName) {
 
@@ -73,7 +73,7 @@ public class AuthController {
             summary = "회원가입 완료",
             description = "OAuth2 로그인 후 이름 설정을 완료하고 최종 회원가입을 처리합니다."
     )
-    @PostMapping("/api/complete-registration")
+    @PostMapping("/complete-registration")
     public ResponseEntity<ApiResponseTemplate<LoginResponse>> completeRegistration(
             @RequestParam String email,
             @RequestParam String userName,
@@ -88,7 +88,7 @@ public class AuthController {
             summary = "회원 탈퇴",
             description = "현재 로그인한 사용자의 계정을 삭제합니다."
     )
-    @DeleteMapping("/api/cancel")
+    @DeleteMapping("/cancel")
     public ResponseEntity<ApiResponseTemplate<String>> cancel(Authentication authentication) {
         // 현재 로그인한 사용자의 이메일을 가져옴
         String email = authentication.getName();
