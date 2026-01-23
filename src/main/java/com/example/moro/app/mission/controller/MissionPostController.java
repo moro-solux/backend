@@ -45,9 +45,10 @@ public class MissionPostController {
     @PostMapping(value = "/upload",consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ApiResponseTemplate<MissionPostResponse>> uploadMissionPost(
             @RequestPart("image") MultipartFile image,
-            @RequestPart("data") MissionPostRequest request
+            @RequestPart("data") MissionPostRequest request,
+            @AuthenticationPrincipal Member member
     ) {
-        MissionPostResponse response = missionPostService.saveMissionPost(image, request);
+        MissionPostResponse response = missionPostService.saveMissionPost(image, request, member);
         return ApiResponseTemplate.success(SuccessCode.RESOURCE_CREATED, response);
     }
 

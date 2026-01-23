@@ -102,14 +102,10 @@ public class MissionPostService {
     }
 
     @Transactional
-    public MissionPostResponse saveMissionPost(MultipartFile image, MissionPostRequest request) {
+    public MissionPostResponse saveMissionPost(MultipartFile image, MissionPostRequest request, Member member) {
         // 1. 이미지 저장 로직
         // 실제 이미지는 s3에 저장, DB에는 그 경로를 저장함
         String imageUrl = s3Service.uploadImage(image);
-
-        // 2. 외래키 객체 조회
-        Member member = memberRepository.findById(request.getUserId())
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자 입니다."));
 
         // Mission 테이블 참조
         Mission mission = missionRepository.findById(request.getMissionId())
