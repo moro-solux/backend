@@ -48,18 +48,25 @@ public class MissionPostService {
     // < 미션 주제 조회 >
     @Transactional(readOnly = true)
     public MissionSubjectResponse getSubject(){
-        // 가장 최근에 생성된 미션 조회
-        Mission mission = missionRepository.findFirstByOrderByCreatedAtDesc()
-                .orElseThrow(() -> new BusinessException(ErrorCode.RESOURCE_NOT_FOUND, "미션을 찾을 수 없습니다."));
-
-        // 현재 시각 기준 오전/오후 유효성 검증
         LocalDateTime now = LocalDateTime.now();
-        LocalDateTime missionTime = mission.getCreatedAt();
+        LocalDateTime start;
+        LocalDateTime end;
 
-        // 날짜가 다르거나, 오전/오후 시간대가 일치하지 않으면 예외 발생
-        if(!isSameTimeWindow(now, missionTime)){
-            throw new BusinessException(ErrorCode.RESOURCE_NOT_FOUND,"현재 유효한 미션이 없습니다.");
+        // 현재 시간에 따라 조회 범위를 오늘 오전 또는 오늘 오후로 설정
+        if (now.getHour() < 12) {
+            // 오전: 00:00:00 ~ 11:59:59
+            start = now.toLocalDate().atStartOfDay();
+            end = now.toLocalDate().atTime(11, 59, 59);
+        } else {
+            // 오후: 12:00:00 ~ 23:59:59
+            start = now.toLocalDate().atTime(12, 0, 0);
+            end = now.toLocalDate().atTime(23, 59, 59);
         }
+
+        // 해당 범위에 속하는 미션을 DB에서 직접 조회
+        Mission mission = missionRepository.findByCreatedAtBetween(start, end)
+                .orElseThrow(() -> new BusinessException(ErrorCode.RESOURCE_NOT_FOUND, "현재 시간대에 할당된 미션이 없습니다."));
+
         return new MissionSubjectResponse(
                 mission.getMissionId(),
                 mission.getMissionTitle(),
@@ -69,15 +76,6 @@ public class MissionPostService {
         );
     }
 
-    private boolean isSameTimeWindow(LocalDateTime now, LocalDateTime missionTime){
-        // 날짜 같은지
-        boolean isSameDay = now.toLocalDate().isEqual(missionTime.toLocalDate());
-        // 오전 여부 확인
-        boolean isNowMorning = now.getHour() < 12;
-        boolean isMissionMorning = missionTime.getHour() < 12;
-
-        return isSameDay && (isNowMorning == isMissionMorning);
-    }
 
     @Transactional
     public MissionPostResponse saveMissionPost(MultipartFile image, MissionPostRequest request) {
