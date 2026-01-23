@@ -13,6 +13,9 @@ import com.example.moro.app.post.service.PostService;
 import com.example.moro.global.common.ApiResponseTemplate;
 import com.example.moro.global.common.SuccessCode;
 import com.example.moro.global.common.dto.PageResponse;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.Parameters;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
@@ -49,9 +52,17 @@ public class PostController {
     // ===== 홈 피드 스타일 게시물 조회 =====
     // 팔로우한 사용자들의 게시물 + 전체 공개 사용자의 게시물을 최신순으로 조회 (무한 스크롤 지원)
     @GetMapping("/feed")
+    @Parameters({
+            @Parameter(name = "page", description = "페이지 번호 (0부터 시작)",
+                    example = "0", in = ParameterIn.QUERY),
+            @Parameter(name = "size", description = "페이지당 항목 수",
+                    example = "20", in = ParameterIn.QUERY),
+            @Parameter(name = "sort", description = "정렬 조건 (예: createdAt,desc)",
+                    example = "createdAt,desc", in = ParameterIn.QUERY)
+    })
     public ResponseEntity<ApiResponseTemplate<PageResponse<PostResponseDto>>> getHomeFeed(
             @AuthenticationPrincipal Member member,
-            @PageableDefault(size = 20) Pageable pageable) {
+            @Parameter(hidden = true) @PageableDefault(size = 20) Pageable pageable) {
 
         PageResponse<PostResponseDto> feed = postService.getHomeFeed(member.getId(), pageable);
         return ApiResponseTemplate.success(SuccessCode.RESOURCE_RETRIEVED, feed);
