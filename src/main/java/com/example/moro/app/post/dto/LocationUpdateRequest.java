@@ -9,5 +9,5 @@ import lombok.NoArgsConstructor;
 public class LocationUpdateRequest {
     private Double lat;
     private Double lng;
-    private String address;
+    private String placeName;
 }

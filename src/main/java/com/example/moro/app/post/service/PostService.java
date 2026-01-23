@@ -269,7 +269,7 @@ public class PostService {
 
         draft.setLat(request.getLat());
         draft.setLng(request.getLng());
-        draft.setAddress(request.getAddress());  // 주소 정보도 업데이트
+        draft.setAddress(request.getPlaceName());  // 주소 정보도 업데이트
         postRepository.save(draft);
     }
 
