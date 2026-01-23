@@ -110,6 +110,18 @@ public class MemberController {
         return ApiResponseTemplate.success(SuccessCode.RESOURCE_RETRIEVED, response);
 
     }
+    @Operation(summary = "본인 프로필 조회 (색상 목록 포함)", description = "특정 유저의 프로필 정보(대표 색상 6가지 목록 포함)를 조회합니다.")
+    @GetMapping("/me/profile")
+    public ResponseEntity<ApiResponseTemplate<ProfileResponse>> getUserProfile() {
+
+        Member currentUser = securityUtil.getCurrentMember();
+        Long currentUserId = currentUser.getId();
+
+        ProfileResponse response = memberService.getProfile(currentUserId, currentUserId);
+
+        return ApiResponseTemplate.success(SuccessCode.RESOURCE_RETRIEVED, response);
+
+    }
 
     @Operation(summary = "프로필 수정", description = "나의 프로필 정보(이름, 프로필 배경색)를 수정합니다.")
     @PutMapping("/me/profile")
