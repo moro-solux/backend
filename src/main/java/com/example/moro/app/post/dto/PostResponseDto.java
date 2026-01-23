@@ -11,6 +11,7 @@ public class PostResponseDto {
     private Long id; //게시물 id
     private String imageUrl; //게시물 이미지 url
     private String userName; //사용자 아이디
+    private Long userId;
     private String userProfileImageUrl; //사용자 프로필 이미지 url (임시: 대표 색상)
     private LocalDateTime createdAt; //게시물 생성 시간
     private String likecount; //좋아요 개수
@@ -37,7 +38,7 @@ public class PostResponseDto {
 
     // 확장된 생성자 (모든 필드 포함)
     public PostResponseDto(Post post, int likeCount, int commentCount,
-                          List<ColorInfo> colors, String userName, String userProfileImageUrl) {
+                          List<ColorInfo> colors,Long userId, String userName, String userProfileImageUrl) {
         this.id = post.getId();
         this.imageUrl = post.getImageUrl();
         this.createdAt = post.getCreatedAt();
@@ -49,6 +50,7 @@ public class PostResponseDto {
         this.commentCount = commentCount;
         this.colors = colors;
         this.userName = userName;
+        this.userId = userId;
         this.userProfileImageUrl = userProfileImageUrl;
     }
 

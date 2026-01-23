@@ -129,11 +129,12 @@ public class PostService {
         List<PostResponseDto.ColorInfo> colors = getColorInfos(post);
 
         //사용자 정보 조회
+        Long userId =post.getMember().getId();
         String userName = post.getMember().getUserName();
         String userProfileImage = getUserProfileImage(post.getMember());
 
         //확장된 DTO에 담아서 반환
-        return new PostResponseDto(post, likeCount, commentCount, colors, userName, userProfileImage);
+        return new PostResponseDto(post, likeCount, commentCount, colors, userId, userName, userProfileImage);
     }
 
     // 4. 홈 피드 스타일 게시물 조회
@@ -153,11 +154,12 @@ public class PostService {
             List<PostResponseDto.ColorInfo> colors = getColorInfos(post);
 
             // 사용자 정보 조회
+            Long userId =post.getMember().getId();
             String userName = post.getMember().getUserName();
             String userProfileImage = getUserProfileImage(post.getMember());
 
             // DTO로 변환
-            return new PostResponseDto(post, likeCount, commentCount, colors, userName, userProfileImage);
+            return new PostResponseDto(post, likeCount, commentCount, colors, userId, userName, userProfileImage);
         });
 
         return PageResponse.from(postResponseDtos);
